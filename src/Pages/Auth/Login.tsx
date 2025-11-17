@@ -1,89 +1,54 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import supabase from "../../api/supabaseClient";
-import "./Auth.css";
+import "./Login.css";
+import logo from "../../assets/ulohub.jpg";
+<img src={logo} alt="Rent Radar Logo" className="login-logo" />
 
-const Login: React.FC = () => {
-  const [email, setEmail] = useState("");
+
+
+export default function Login() {
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setLoading(true);
-
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
-      // Check if email is confirmed
-      if (!data.user?.email_confirmed_at) {
-        alert("Please confirm your email before logging in!");
-        return;
-      }
-
-      // Redirect based on user role (fetch from profiles table)
-      const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", data.user?.id)
-        .single();
-
-      if (profileError) throw profileError;
-
-      if (profileData.role === "landlord") {
-        navigate("/landlord/dashboard");
-      } else {
-        navigate("/tenant/dashboard");
-      }
-    } catch (error: any) {
-      alert(error.message);
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <img src="/profile.png" alt="Profile" className="profile-pic" />
-        <h2>
-          Welcome back to <span className="highlight">Rent Radar</span>
-        </h2>
+    <div className="login-container">
+      <div className="login-card">
+        <img src={logo} alt="Ulohub Logo" className="login-logo" />
 
-        <form onSubmit={handleLogin}>
+        <h2 className="login-title"> Oya Let's Get Going!</h2>
+
+        <form onSubmit={handleSubmit} className="login-form">
+          <label>Phone Number</label>
           <input
-            type="email"
-            placeholder="Email address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="Enter phone number"
             required
           />
+
+          <label>Password</label>
           <input
             type="password"
-            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter password"
             required
           />
 
-          <button type="submit" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
-          </button>
-        </form>
+          <button type="submit">Login</button>
 
-        <p className="switch-text">
-          Don't have an account?{" "}
-          <span onClick={() => navigate("/signup")}>Sign Up</span>
-        </p>
+          <p className="signup-text">
+            Don't have an account?
+            <a href="/signup" className="signup-link">
+              Sign up
+            </a>
+          </p>
+        </form>
       </div>
     </div>
   );
-};
-
-export default Login;
+}
