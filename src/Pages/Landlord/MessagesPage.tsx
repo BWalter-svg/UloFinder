@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import supabase from "../../api/supabaseClient";
 import ChatBox from "./ChatBox";
-import "../iMessageChat.css"; // GLOBAL CSS
+import "./iMessageChat.css"; // GLOBAL CSS
 
 type ConversationItem = {
   id: string;
@@ -116,5 +116,6 @@ const MessagesPage: React.FC = () => {
     </div>
   );
 };
+
 
 export default MessagesPage;
