@@ -1,0 +1,52 @@
+.messages-container {
+  padding: 20px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.conversation-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  border: 1px solid #e7e7e7;
+  transition: 0.2s;
+}
+
+.conversation-card:hover {
+  background: #eef7ff;
+}
+
+.icon {
+  color: #0ea5e9;
+}
+
+.text h3 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.text p {
+  margin: 0;
+  color: #555;
+}
+
+.time {
+  margin-left: auto;
+  font-size: 12px;
+  color: #777;
+}
+
+.empty {
+  text-align: center;
+  color: #777;
+  padding: 40px 0;
+}
