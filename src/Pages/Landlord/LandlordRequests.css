@@ -1,0 +1,82 @@
+.dashboard-container {
+  max-width: 1000px;
+  margin: auto;
+  padding: 20px;
+}
+
+.dashboard-container h1 {
+  text-align: center;
+  color: #007bff;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.requests-list {
+  display: grid;
+  gap: 20px;
+}
+
+.request-card {
+  background: #fff;
+  padding: 18px;
+  border-radius: 15px;
+  box-shadow: 0 5px 18px rgba(0,0,0,0.07);
+  transition: transform 0.2s ease;
+}
+
+.request-card:hover {
+  transform: translateY(-3px);
+}
+
+.request-card h3 {
+  color: #111;
+  font-size: 1.3rem;
+}
+
+.request-card p {
+  margin: 6px 0;
+  color: #444;
+}
+
+.request-actions {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+}
+
+/* 💚 Accept button */
+.accept-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  background: #10b981;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.accept-btn:hover {
+  background: #0a936a;
+}
+
+/* ❌ Reject button */
+.reject-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  background: #ef4444;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.reject-btn:hover {
+  background: #d62828;
+}

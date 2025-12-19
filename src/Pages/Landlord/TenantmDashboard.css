@@ -1,0 +1,64 @@
+.dashboard-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9faff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  font-family: 'Inter', sans-serif;
+}
+
+.dashboard-container h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #1e3a8a; /* bright blue */
+}
+
+.requests-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.request-card {
+  padding: 16px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease;
+}
+
+.request-card:hover {
+  transform: translateY(-2px);
+}
+
+.request-card.accepted {
+  border-left: 4px solid #10b981; /* green left border */
+}
+
+.accepted-badge {
+  display: inline-block;
+  background-color: #10b981;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  margin-bottom: 6px;
+}
+
+.request-card h3 {
+  font-size: 1.25rem;
+  margin-bottom: 6px;
+  color: #1e3a8a;
+}
+
+.request-card p {
+  margin: 4px 0;
+  color: #374151;
+}
+
+.chat-container {
+  margin-top: 12px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 12px;
+}

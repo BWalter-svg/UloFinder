@@ -1,0 +1,77 @@
+/* Main container */
+.add-property-container {
+  background: #ffffff;
+  padding: 2rem;
+  max-width: 600px;
+  margin: 2rem auto;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0, 128, 255, 0.1);
+  border: 1px solid rgba(0, 128, 255, 0.15);
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+/* Title */
+.add-property-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #007bff;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+/* Input fields */
+.add-property-input,
+.add-property-textarea,
+.add-property-file {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #cfe2ff;
+  background: #f8fbff;
+  outline: none;
+  transition: 0.2s ease;
+  font-size: 15px;
+}
+
+.add-property-input:focus,
+.add-property-textarea:focus,
+.add-property-file:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 128, 255, 0.25);
+}
+
+/* Button */
+.add-property-btn {
+  width: 100%;
+  background: #007bff;
+  color: white;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  transition: 0.25s ease;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.add-property-btn:hover {
+  background: #006ae0;
+}
+
+.add-property-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

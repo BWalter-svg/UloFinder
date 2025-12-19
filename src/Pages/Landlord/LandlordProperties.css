@@ -1,0 +1,143 @@
+/* Main container */
+.properties-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+/* Loading + Empty state */
+.loading-text,
+.empty-state {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #007bff;
+  padding: 2rem;
+  font-weight: 600;
+}
+
+/* Property card */
+.property-card {
+  background: #ffffff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0, 128, 255, 0.15);
+  border: 1px solid rgba(0, 128, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.property-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0, 128, 255, 0.2);
+}
+
+/* Property image */
+.property-image {
+  width: 100%;
+  height: 170px;
+  object-fit: cover;
+  background: #e6f0ff;
+}
+
+/* Property details wrapper */
+.property-details {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Title */
+.property-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #007bff;
+}
+
+/* Location */
+.property-location {
+  font-size: 0.95rem;
+  color: #3a3a3a;
+}
+
+/* Price */
+.property-price {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0056c5;
+  margin-top: 4px;
+}
+
+/* Description */
+.property-description {
+  font-size: 0.9rem;
+  color: #303030;
+  opacity: 0.8;
+}
+
+/* Buttons container */
+.property-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.8rem;
+}
+
+/* Edit button */
+.edit-btn {
+  padding: 8px 14px;
+  border: none;
+  background: #007bff;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.edit-btn:hover {
+  background: #006ae0;
+}
+
+/* Delete button */
+.delete-btn {
+  padding: 8px 14px;
+  border: none;
+  background: #ff3c3c;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.delete-btn:hover {
+  background: #da2b2b;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+  .properties-container {
+    grid-template-columns: 1fr;
+    max-width: 100%;
+    margin: 1rem;
+  }
+}

@@ -1,0 +1,160 @@
+/* Add this at the top of ChatBox.css */
+@keyframes bubblePop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Then update the bubbles */
+.bubble {
+  max-width: 70%;
+  padding: 10px 15px;
+  border-radius: 20px;
+  position: relative;
+  word-wrap: break-word;
+  font-size: 14px;
+  line-height: 1.4;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.1s;
+  animation: bubblePop 0.3s ease-out; /* animate new messages */
+}
+
+.bubble-me::after,
+.bubble-other::after {
+  animation: bubblePop 0.3s ease-out; /* animate triangle pop too */
+}
+
+/* ChatBox.css */
+
+.imessage-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 600px;
+  border: 1px solid #cce0ff;
+  border-radius: 15px;
+  overflow: hidden;
+  background-color: #f0f8ff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+.imessage-messages {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scroll-behavior: smooth;
+}
+
+.bubble {
+  max-width: 70%;
+  padding: 10px 15px;
+  border-radius: 20px;
+  position: relative;
+  word-wrap: break-word;
+  font-size: 14px;
+  line-height: 1.4;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.1s;
+}
+
+.bubble:hover {
+  transform: scale(1.02);
+}
+
+/* Sender bubble (you) */
+.bubble-me {
+  align-self: flex-end;
+  background: #007bff;
+  color: white;
+  border-bottom-right-radius: 0;
+}
+
+/* Sender triangle */
+.bubble-me::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: -8px;
+  width: 0;
+  height: 0;
+  border-top: 8px solid #007bff;
+  border-left: 8px solid transparent;
+}
+
+/* Receiver bubble */
+.bubble-other {
+  align-self: flex-start;
+  background: #e6f0ff;
+  color: #007bff;
+  border-bottom-left-radius: 0;
+}
+
+/* Receiver triangle */
+.bubble-other::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border-top: 8px solid #e6f0ff;
+  border-right: 8px solid transparent;
+}
+
+.timestamp {
+  display: block;
+  font-size: 10px;
+  color: rgba(0, 0, 0, 0.4);
+  margin-top: 5px;
+  text-align: right;
+}
+
+.imessage-input-row {
+  display: flex;
+  padding: 10px 15px;
+  background-color: #e6f0ff;
+  border-top: 1px solid #cce0ff;
+  gap: 10px;
+}
+
+.imessage-input {
+  flex: 1;
+  padding: 10px 15px;
+  border-radius: 20px;
+  border: 1px solid #b3d1ff;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.imessage-input:focus {
+  border-color: #007bff;
+}
+
+.imessage-send-btn {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.imessage-send-btn:hover {
+  background-color: #005bb5;
+  transform: scale(1.05);
+}
