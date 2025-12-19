@@ -1,0 +1,143 @@
+/* Container */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 1rem;
+  background: #f2f8ff;
+}
+
+/* Card */
+.auth-card {
+  background: #fff;
+  padding: 2rem;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 1rem;
+  box-shadow: 0 0 25px rgba(0, 90, 255, 0.15);
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* Logo */
+.auth-logo {
+  width: 80px;
+  margin-bottom: 1rem;
+}
+
+/* Titles & subtitles */
+.auth-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #007bff;
+}
+
+.auth-subtitle {
+  margin-top: 6px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Form */
+.auth-form {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.auth-form label {
+  text-align: left;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.auth-form input {
+  padding: 0.7rem;
+  border: 1px solid #ddd;
+  border-radius: 0.6rem;
+  outline: none;
+  font-size: 0.9rem;
+  transition: border 0.2s;
+}
+
+.auth-form input:focus {
+  border-color: #007bff;
+}
+
+/* Submit button */
+.auth-submit {
+  padding: 0.9rem;
+  background: #007bff;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.7rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: 0.2s ease;
+}
+
+.auth-submit:hover {
+  opacity: 0.9;
+}
+
+/* Links & text */
+.switch-text {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.switch-link {
+  color: #007bff;
+  cursor: pointer;
+}
+
+.forgot-link {
+  text-align: right;
+  margin: 0.5rem 0;
+  font-size: 0.85rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 500px) {
+  .auth-card {
+    padding: 1.5rem;
+  }
+
+  .auth-title {
+    font-size: 1.6rem;
+  }
+
+  .auth-form input {
+    padding: 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .auth-submit {
+    padding: 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .switch-text {
+    font-size: 0.85rem;
+  }
+
+  .forgot-link {
+    font-size: 0.8rem;
+  }
+}
+
+@media (min-width: 900px) {
+  .auth-card {
+    padding: 3rem;
+    max-width: 450px;
+  }
+
+  .auth-title {
+    font-size: 2rem;
+  }
+}

@@ -5,82 +5,65 @@
   --dark: #1a1a1a;
 }
 
-.auth-container {
+.signup-container {
   height: 100vh;
   width: 100%;
-  background: var(--primary-blue);
+  background: var(--primary-blue);  /* full blue background */
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
 }
 
-.auth-card {
-  width: 95%;
-  max-width: 360px;
+.signup-card {
+  width: 90%;
+  max-width: 360px;      /* perfect phone-size square */
   background: var(--white);
-  border-radius: 24px;
+  border-radius: 24px;    /* smooth rounded corners */
   padding: 2rem;
-  box-shadow: 0 10px 35px rgba(0,0,0,0.15);
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.15);
   text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
 }
 
-.auth-logo {
+.signup-logo {
   width: 85px;
   height: auto;
-  margin: 0 auto 1rem auto;
+  margin-bottom: 1rem;
 }
 
-.auth-title {
-  color: var(--primary-blue);
+.signup-title {
   font-size: 1.45rem;
   font-weight: 700;
+  color: var(--primary-blue);
+  margin-bottom: 1rem;
 }
 
-.auth-form {
+.signup-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.auth-form label {
+.signup-form label {
   text-align: left;
+  font-size: 0.95rem;
   font-weight: 600;
   color: var(--dark);
 }
 
-.auth-form input,
-.auth-input {
+.signup-form input {
   padding: 0.9rem;
   border-radius: 14px;
   border: 1px solid #d0d8e7;
   font-size: 1rem;
-  width: 100%;
-  box-sizing: border-box;
 }
 
-.auth-submit {
-  padding: 1rem;
-  border-radius: 14px;
-  border: none;
-  background: var(--primary-blue);
-  color: var(--white);
-  font-weight: 600;
-  font-size: 1.05rem;
-  cursor: pointer;
-}
-
-.auth-submit:hover {
-  opacity: 0.9;
+.role-section {
+  margin-top: 8px;
 }
 
 .role-section p {
   font-weight: 600;
   margin-bottom: 6px;
-  text-align: left;
 }
 
 .role-buttons {
@@ -109,31 +92,26 @@
   font-weight: 700;
 }
 
-.role-icon {
-  width: 22px;
-  height: 22px;
-  color: var(--primary-blue);
-}
-
-.switch-text {
-  font-size: 0.95rem;
-}
-
-.switch-link {
-  margin-left: 5px;
-  color: var(--primary-blue);
+.signup-submit {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: none;
+  border-radius: 14px;
+  background: var(--primary-blue);
+  color: var(--white);
+  font-size: 1.05rem;
   font-weight: 600;
   cursor: pointer;
 }
 
-@media (max-width: 350px) {
-  .auth-card {
-    padding: 1.5rem;
-  }
-  .auth-title {
-    font-size: 1.3rem;
-  }
-  .auth-submit {
-    padding: 0.9rem;
-  }
+.login-text {
+  margin-top: 1rem;
+  font-size: 0.95rem;
+}
+
+.login-link {
+  margin-left: 5px;
+  color: var(--primary-blue);
+  font-weight: 600;
+  cursor: pointer;
 }
