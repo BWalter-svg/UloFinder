@@ -1,53 +1,84 @@
 import React, { useState } from "react";
-import "./Login.css";
-import logo from "../../assets/ulohub.jpg";
-<img src={logo} alt="Rent Radar Logo" className="login-logo" />
-
-
+import { useNavigate } from "react-router-dom";
+import supabase from "../../api/supabaseClient";
+import "./Auth.css";
 
 export default function Login() {
-  const [phone, setPhone] = useState("");
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", data.user?.id)
+        .single();
+
+      if (profileError) throw profileError;
+
+      const role = profileData?.role;
+      if (role === "landlord") navigate("/landlord/dashboard");
+      else if (role === "tenant") navigate("/tenant/dashboard");
+      else navigate("/"); // fallback
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <img src={logo} alt="Ulohub Logo" className="login-logo" />
+    <div className="auth-container">
+      <div className="auth-card">
+        <img src="/ulohub.jpg" alt="Ulohub Logo" className="auth-logo" />
+        <h2 className="auth-title">Login</h2>
 
-        <h2 className="login-title"> Oya Let's Get Going!</h2>
-
-        <form onSubmit={handleSubmit} className="login-form">
-          <label>Phone Number</label>
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <label>Email</label>
           <input
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="Enter phone number"
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
 
           <label>Password</label>
           <input
             type="password"
+            placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter password"
             required
           />
 
-          <button type="submit">Login</button>
-
-          <p className="signup-text">
-            Don't have an account?
-            <a href="/signup" className="signup-link">
-              Sign up
-            </a>
+          <p
+            className="switch-link forgot-link"
+            onClick={() => navigate("/forgot-password")}
+          >
+            Forgot Password?
           </p>
+
+          <button type="submit" className="auth-submit" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
         </form>
+
+        <p className="switch-text">
+          Don't have an account?{" "}
+          <span className="switch-link" onClick={() => navigate("/signup")}>
+            Sign Up
+          </span>
+        </p>
       </div>
     </div>
   );
