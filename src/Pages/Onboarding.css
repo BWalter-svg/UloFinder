@@ -1,0 +1,67 @@
+:root {
+  --primary-blue: #007bff;
+  --white: #ffffff;
+  --light-blue: #e6f0ff;
+  --text-dark: #1a1a1a;
+}
+
+.onboard-container {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--light-blue);
+  padding: 1rem;
+}
+
+.onboard-card {
+  width: 100%;
+  max-width: 360px;
+  background: var(--white);
+  padding: 2rem;
+  border-radius: 22px;
+  text-align: center;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+
+.onboard-logo {
+  width: 100px;
+  margin-bottom: 1rem;
+}
+
+.onboard-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--primary-blue);
+  margin-bottom: 0.5rem;
+}
+
+.onboard-desc {
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  margin-bottom: 1.3rem;
+}
+
+.onboard-input {
+  width: 100%;
+  padding: 0.9rem;
+  border-radius: 12px;
+  border: 1px solid #d3d9e6;
+  margin-bottom: 0.9rem;
+}
+
+.onboard-btn {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 14px;
+  border: none;
+  background: var(--primary-blue);
+  color: var(--white);
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.onboard-btn:hover {
+  opacity: 0.9;
+}
