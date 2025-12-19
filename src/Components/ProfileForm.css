@@ -1,0 +1,188 @@
+/* =========================
+   Profile Page Container
+   ========================= */
+.profile-page {
+  padding-top: 80px; /* space for fixed TopBar */
+  padding-bottom: 2rem;
+  min-height: 100vh;
+  background-color: #f9fafb; /* subtle light gray background */
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* =========================
+   Header
+   ========================= */
+.profile-header {
+  text-align: center;
+  width: 100%;
+  max-width: 600px;
+  padding: 1.5rem 1rem;
+  background-color: #eff6ff; /* soft light blue */
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+}
+
+.profile-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e40af; /* dark blue */
+  margin-bottom: 0.5rem;
+  position: relative;
+}
+
+.profile-header h1::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 3px;
+  background: #3b82f6;
+  border-radius: 2px;
+  margin: 0.5rem auto 0;
+}
+
+.profile-header p {
+  font-size: 1rem;
+  color: #3b82f6; /* medium blue */
+}
+
+/* =========================
+   Form Wrapper
+   ========================= */
+.profile-form {
+  max-width: 400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+/* =========================
+   Avatar Section
+   ========================= */
+.avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.avatar-img,
+.avatar-placeholder {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #3b82f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  background-color: #bfdbfe; /* light blue placeholder */
+  color: #3b82f6;
+  transition: transform 0.2s ease;
+}
+
+.avatar-img:hover,
+.avatar-placeholder:hover {
+  transform: scale(1.05);
+}
+
+.file-input {
+  font-size: 0.9rem;
+  color: #3b82f6;
+  margin-top: 0.25rem;
+}
+
+.uploading-text {
+  color: #3b82f6;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+/* =========================
+   Form Inputs
+   ========================= */
+.form-input {
+  padding: 0.85rem 1rem;
+  border: 1.5px solid #93c5fd;
+  border-radius: 12px;
+  outline: none;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background-color: #f9fafb;
+}
+
+.form-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  background-color: #fff;
+}
+
+.form-input[readonly] {
+  background-color: #f3f4f6; /* subtle gray for readonly fields */
+  cursor: default;
+}
+
+/* =========================
+   Buttons
+   ========================= */
+.submit-btn {
+  background-color: #3b82f6;
+  color: #fff;
+  padding: 0.9rem 1rem;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.submit-btn:hover {
+  background-color: #2563eb;
+}
+
+.submit-btn:disabled {
+  background-color: #93c5fd;
+  cursor: not-allowed;
+}
+
+/* =========================
+   Messages
+   ========================= */
+.success-msg {
+  color: #16a34a; /* green */
+  font-size: 0.9rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+.error-msg {
+  color: #dc2626; /* red */
+  font-size: 0.9rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* =========================
+   Responsive
+   ========================= */
+@media (max-width: 400px) {
+  .profile-form {
+    padding: 1.5rem;
+  }
+
+  .profile-header h1 {
+    font-size: 1.75rem;
+  }
+}

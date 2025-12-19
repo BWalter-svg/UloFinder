@@ -1,12 +1,13 @@
+// src/Components/TopBar.tsx
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { FiMessageSquare } from "react-icons/fi";
+import { FiSettings } from "react-icons/fi";
 
 const TopBar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Hide top bar on login & signup pages
+  // Hide TopBar on login/signup
   const hideTopBar = ["/login", "/signup"].includes(location.pathname);
   if (hideTopBar) return null;
 
@@ -15,44 +16,42 @@ const TopBar: React.FC = () => {
       style={{
         width: "100%",
         height: "60px",
-        backgroundColor: "#0ea5e9",
-        color: "white",
+        backgroundColor: "#ffffff",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "0 1rem",
+        padding: "0 1.5rem",
         boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
         position: "fixed",
         top: 0,
         zIndex: 1000,
       }}
     >
-      {/* Left side - logo */}
-      <div
-        style={{ fontWeight: "bold", fontSize: "1.2rem", cursor: "pointer" }}
-        onClick={() => navigate("/dashboard")}
-      >
-        Rent Radar
-      </div>
-
-      {/* Right side - messages icon */}
+      {/* Logo left */}
       <div
         style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "1rem",
+          fontWeight: "bold",
+          fontSize: "1.3rem",
           cursor: "pointer",
+          color: "#0ea5e9", // blue logo
         }}
+        onClick={() => navigate("/dashboard")}
       >
-        <FiMessageSquare
-          size={22}
-          onClick={() => navigate("/messages")}
+        ULOHUB
+      </div>
+
+      {/* Icons right */}
+      <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+        <FiSettings
+          size={24}
+          onClick={() => navigate("/settings")}
           style={{
-            color: "white",
+            cursor: "pointer",
             transition: "0.2s",
+            color: "#0a66dd",
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "#dbeafe")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "white")}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#459bff")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "#0a66dd")}
         />
       </div>
     </div>
