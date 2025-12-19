@@ -1,95 +1,83 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FiHome, FiBox, FiUserPlus } from "react-icons/fi";
 import supabase from "../../api/supabaseClient";
-import "../../App.css";
+import "./landlord.css";
 
 const LandlordDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [propertyCount, setPropertyCount] = useState(0);
-  const [messagesCount, setMessagesCount] = useState(0);
-  const [rentCount, setRentCount] = useState(0);
-  const [maintenanceCount, setMaintenanceCount] = useState(0);
+  const [profile, setProfile] = useState<any>(null);
+  const [stats, setStats] = useState({
+    properties: 0,
+    vacantUnits: 0,
+  });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-     const { data: { user } } = await supabase.auth.getUser();
+    const loadData = async () => {
+      setLoading(true);
 
-      if (!user) return;
+      // 1. Get current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (!user || userError) return navigate("/login");
 
-      // Count landlord properties
+      // 2. Fetch profile
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+      setProfile(profileData);
+
+      // 3. Fetch properties
       const { data: properties } = await supabase
-        .from("properties")
-        .select("*", { count: "exact" })
-        .eq("landlord_id", user.id);
+        .from("houses")
+        .select("*")
+        .eq("owner_id", user.id);
 
-      setPropertyCount(properties?.length || 0);
+      // 4. Vacant units
+      const vacantUnits = properties?.filter(p => p.is_available).length || 0;
 
-      // Count messages
-      const { data: messages } = await supabase
-        .from("messages")
-        .select("*", { count: "exact" })
-        .eq("landlord_id", user.id);
+      setStats({
+        properties: properties?.length || 0,
+        vacantUnits,
+      });
 
-      setMessagesCount(messages?.length || 0);
-
-      // Count rent payments
-      const { data: rents } = await supabase
-        .from("rent_payments")
-        .select("*", { count: "exact" })
-        .eq("landlord_id", user.id);
-
-      setRentCount(rents?.length || 0);
-
-      // Count maintenance requests
-      const { data: maintenance } = await supabase
-        .from("maintenance_requests")
-        .select("*", { count: "exact" })
-        .eq("landlord_id", user.id);
-
-      setMaintenanceCount(maintenance?.length || 0);
+      setLoading(false);
     };
 
-    fetchData();
-  }, []);
+    loadData();
+  }, [navigate]);
 
   const cards = [
-    {
-      title: "Properties",
-      description: `You have ${propertyCount} properties.`,
-      path: "/landlord/properties",
-    },
-    {
-      title: "Messages",
-      description: `You have ${messagesCount} unread messages.`,
-      path: "/landlord/messages",
-    },
-    {
-      title: "Rent Tracking",
-      description: `You have ${rentCount} rent entries.`,
-      path: "/landlord/renttracking",
-    },
-    {
-      title: "Maintenance Requests",
-      description: `You have ${maintenanceCount} open requests.`,
-      path: "/landlord/maintenance",
-    },
+    { title: "Total Properties", count: stats.properties, icon: <FiHome />, route: "/landlord/properties" },
+    { title: "Add Property", icon: <FiUserPlus />, route: "/landlord/addproperty" },
+    { title: "Vacant Units", count: stats.vacantUnits, icon: <FiBox />, route: "/landlord/vacant-units" },
   ];
 
+  if (loading) return <p style={{ textAlign: "center", marginTop: "50px" }}>Loading...</p>;
+
   return (
-    <div className="page-container">
-      <h1>Landlord Dashboard</h1>
-      <div className="card-grid">
-        {cards.map((card, index) => (
-          <div
-            key={index}
-            className="card"
-            onClick={() => navigate(card.path)}
-            style={{ cursor: "pointer" }}
-          >
-            <h2>{card.title}</h2>
-            <p>{card.description}</p>
-          </div>
-        ))}
+    <div className="dashboard-wrapper">
+      <div className="dashboard">
+        <div className="dashboard-header">
+          <h1 className="dashboard-title"><FiHome style={{ marginRight: 8 }} />Dashboard</h1>
+          <p className="dashboard-subtitle">Welcome, {profile?.full_name}</p>
+        </div>
+
+        <div className="cards-container">
+          {cards.map((card, index) => (
+            <div key={index} className="card" onClick={() => card.route && navigate(card.route)}>
+              <div className="icon-circle">{card.icon}</div>
+              <div className="card-content">
+                <h2 className="card-title">{card.title}</h2>
+                {card.count !== undefined && <p className="card-count">{card.count}</p>}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="dashboard-footer">UloHub © 2025</div>
       </div>
     </div>
   );
