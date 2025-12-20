@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import supabase from "../../api/supabaseClient";
 import "./Auth.css";
+import logo from "./assets/ulohub.jpg";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -38,8 +39,7 @@ export default function Login() {
 
   return (
     <div className="auth-container">
-      <div className="auth-card">
-        <img src="/ulohub.jpg" alt="Ulohub Logo" className="auth-logo" />
+      <div className="auth-card"> </div>
         <h2 className="auth-title">Login</h2>
 
         <form className="auth-form" onSubmit={handleSubmit}>
@@ -83,3 +83,4 @@ export default function Login() {
     </div>
   );
 }
+
