@@ -53,6 +53,7 @@ const LandlordDashboard: React.FC = () => {
     { title: "Total Properties", count: stats.properties, icon: <FiHome />, route: "/landlord/properties" },
     { title: "Add Property", icon: <FiUserPlus />, route: "/landlord/addproperty" },
     { title: "Vacant Units", count: stats.vacantUnits, icon: <FiBox />, route: "/landlord/vacant-units" },
+    { title: "Rental Requests", count: stats.rentalRequests, icon: <FiMessageCircle />, route: "/landlord/requests" },
   ];
 
   if (loading) return <p style={{ textAlign: "center", marginTop: "50px" }}>Loading...</p>;
@@ -82,5 +83,6 @@ const LandlordDashboard: React.FC = () => {
     </div>
   );
 };
+
 
 export default LandlordDashboard;
