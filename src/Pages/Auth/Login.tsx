@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import supabase from "../../api/supabaseClient";
 import "./Auth.css";
-import logo from "./assets/ulohub.jpg";
+import logo from "../assets/ulohub.jpg";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -92,3 +92,4 @@ export default function Login() {
     </div>
   );
 }
+
