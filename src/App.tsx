@@ -44,8 +44,7 @@ const App: React.FC = () => {
       <Route path="/tenant" element={<LayoutRoute element={<TenantmDashboard />} />} />
 
       {/* --- NEW ADMIN ROUTE --- */}
-      <Route path="/admin/approvals" element={<LayoutRoute element={<AdminApproval />} />} />
-
+     <Route path="/admin/approvals" element={<LayoutRoute element={<AdminApproval />} />} />
       {/* Alerts / Settings */}
       <Route path="/notifications" element={<LayoutRoute element={<Alerts />} />} />
       <Route path="/settings" element={<LayoutRoute element={<Settings />} />} />
