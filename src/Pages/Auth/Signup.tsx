@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../Signup.css"; // Ensure this contains the tweaked CSS from earlier
+import "./Signup.css"; // Ensure this contains the tweaked CSS from earlier
 import { Home, User } from "lucide-react";
 import supabase from "../../api/supabaseClient";
 import logo from "../../assets/ulohub.jpg";
@@ -134,5 +134,6 @@ export default function Signup() {
     </div>
   );
 }
+
 
 
