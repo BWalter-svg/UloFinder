@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./Auth.css"; // Ensure this contains the tweaked CSS from earlier
 import { Home, User } from "lucide-react";
 import supabase from "../../api/supabaseClient";
-import logo from "./assets/ulohub.jpg";
-
+import logo from "../../assets/ulohub.jpg";
 export default function Signup() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -135,3 +134,4 @@ export default function Signup() {
     </div>
   );
 }
+
