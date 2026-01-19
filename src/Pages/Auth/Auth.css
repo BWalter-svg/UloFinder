@@ -124,3 +124,20 @@
   cursor: pointer;
   text-decoration: none;
 }
+.forgot-link {
+  transition: opacity 0.2s;
+}
+
+.forgot-link:hover {
+  opacity: 0.7;
+  text-decoration: underline;
+}
+
+/* Ensure the card doesn't jump when the keyboard appears on phone */
+@media (max-height: 500px) {
+  .auth-container {
+    align-items: flex-start;
+    padding-top: 20px;
+  }
+}
+
