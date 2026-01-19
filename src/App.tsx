@@ -2,43 +2,12 @@ import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import LayoutRoute from "./Components/LayoutRoute";
 
-// Public pages
-import Landing from "./Pages/Landing";
-import Login from "./Pages/Auth/Login";
-import ForgotPassword from "./Pages/Auth/ForgotPassword";
-import ResetPassword from "./Pages/Auth/ResetPassword";
-import Signup from "./Pages/Auth/Signup";
-import OnboardingLandlord from "./Pages/OnboardingLandlord";
-import OnboardingTenant from "./Pages/OnboardingTenant";
-import HelpPage from "./Pages/HelpPage";
+// ... (Your existing imports)
 
-// Landlord pages
-import LandlordDashboard from "./Pages/Landlord/Dashboard";
-import Messages from "./Pages/Landlord/MessagesPage";
-import LandlordPropertyPage from "./Pages/Landlord/PropertyPage";
-import LandlordRentTracking from "./Pages/Landlord/RentTracking";
-import LandlordMaintenance from "./Pages/Landlord/Maintenance";
-import LandlordPricing from "./Pages/Landlord/Pricing";
-import LandlordProfile from "./Pages/Landlord/Profile";
-import AddProperty from "./Pages/Landlord/AddProperty";
-import Tenants from "./Pages/Landlord/Tenants";
-import Payments from "./Pages/Landlord/Payments";
-import Income from "./Pages/Landlord/Income";
-import LandlordRequests from "./Pages/Landlord/Requests";
-import VacantUnits from "./Pages/Landlord/VacantUnits";
-import RentDue from "./Pages/Landlord/RentDue";
-import Applica from "./Pages/Landlord/Applica";
-import Alerts from "./Pages/Alerts";
-import Settings from "./Pages/Settings";
-import TenantmDashboard from "./Pages/Landlord/TenantmDashboard";
-
-// Tenant pages
-import TenantDashboard from "./Pages/Tenant/Dashboard";
-import TenantRentHistory from "./Pages/Tenant/RentHistory";
-import TenantMaintenance from "./Pages/Tenant/Maintenance";
-import ExploreHouses from "./Pages/Tenant/ExploreHouses";
-import HouseDetails from "./Pages/Tenant/PropertyDetails";
-import TenantCurrentProperty from "./Pages/Tenant/Current-property";
+// NEW Verification & Admin Imports
+import VerificationHub from "./Pages/Landlord/VerificationHub";
+import IdentityUpload from "./Pages/Landlord/IdentityUpload";
+import AdminApproval from "./Pages/Admin/AdminApproval"; 
 
 const App: React.FC = () => {
   return (
@@ -48,12 +17,17 @@ const App: React.FC = () => {
       <Route path="/login" element={<LayoutRoute element={<Login />} useLayout={false} />} />
       <Route path="/signup" element={<LayoutRoute element={<Signup />} useLayout={false} />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/onboarding/landlord" element={<LayoutRoute element={<OnboardingLandlord />} useLayout={false} />} />
       <Route path="/onboarding/tenant" element={<LayoutRoute element={<OnboardingTenant />} useLayout={false} />} />
 
-      {/* Landlord pages (automatic AppLayout wrapper) */}
+      {/* Landlord & Verification Pages */}
       <Route path="/landlord/dashboard" element={<LayoutRoute element={<LandlordDashboard />} />} />
+      
+      {/* --- NEW VERIFICATION ROUTES --- */}
+      <Route path="/landlord/verify" element={<LayoutRoute element={<VerificationHub />} />} />
+      <Route path="/landlord/verify/identity" element={<LayoutRoute element={<IdentityUpload />} />} />
+      
       <Route path="/landlord/properties" element={<LayoutRoute element={<LandlordPropertyPage />} />} />
       <Route path="/landlord/addproperty" element={<LayoutRoute element={<AddProperty />} />} />
       <Route path="/landlord/rent-tracking" element={<LayoutRoute element={<LandlordRentTracking />} />} />
@@ -68,6 +42,9 @@ const App: React.FC = () => {
       <Route path="/landlord/applications" element={<LayoutRoute element={<Applica />} />} />
       <Route path="/landlord/requests" element={<LayoutRoute element={<LandlordRequests />} />} />
       <Route path="/tenant" element={<LayoutRoute element={<TenantmDashboard />} />} />
+
+      {/* --- NEW ADMIN ROUTE --- */}
+      <Route path="/admin/approvals" element={<LayoutRoute element={<AdminApproval />} />} />
 
       {/* Alerts / Settings */}
       <Route path="/notifications" element={<LayoutRoute element={<Alerts />} />} />
