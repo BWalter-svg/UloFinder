@@ -18,6 +18,7 @@ export default function Login() {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
+      // Fetch user role from profiles table
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("role")
@@ -40,33 +41,41 @@ export default function Login() {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2 className="auth-title">Login</h2>
+        <img src={logo} alt="Ulohub" className="auth-logo" />
+        <h2 className="auth-title">Welcome Back</h2>
+        <p className="auth-subtitle">Log in to manage your Ulohub account</p>
 
         <form className="auth-form" onSubmit={handleSubmit}>
-          <label>Email</label>
-          <input
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+          <div className="input-group">
+            <label>Email Address</label>
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
 
-          <label>Password</label>
-          <input
-            type="password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-
-          <p
-            className="switch-link forgot-link"
-            onClick={() => navigate("/forgot-password")}
-          >
-            Forgot Password?
-          </p>
+          <div className="input-group">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <label>Password</label>
+              <span 
+                className="forgot-link" 
+                onClick={() => navigate("/forgot-password")}
+                style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--primary-blue)', cursor: 'pointer' }}
+              >
+                Forgot?
+              </span>
+            </div>
+            <input
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
 
           <button type="submit" className="auth-submit" disabled={loading}>
             {loading ? "Logging in..." : "Login"}
@@ -83,5 +92,3 @@ export default function Login() {
     </div>
   );
 }
-
-
