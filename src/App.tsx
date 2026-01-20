@@ -1,6 +1,38 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import LayoutRoute from "./Components/LayoutRoute";
+import Landing from "./Pages/Landing";
+import Login from "./Pages/Auth/Login";
+import ForgotPassword from "./Pages/Auth/ForgotPassword";
+import ResetPassword from "./Pages/Auth/ResetPassword";
+import Signup from "./Pages/Auth/Signup";
+import OnboardingLandlord from "./Pages/OnboardingLandlord";
+import OnboardingTenant from "./Pages/OnboardingTenant";
+import HelpPage from "./Pages/HelpPage";
+import LandlordDashboard from "./Pages/Landlord/Dashboard";
+import Messages from "./Pages/Landlord/MessagesPage";
+import LandlordPropertyPage from "./Pages/Landlord/PropertyPage";
+import LandlordRentTracking from "./Pages/Landlord/RentTracking";
+import LandlordMaintenance from "./Pages/Landlord/Maintenance";
+import LandlordPricing from "./Pages/Landlord/Pricing";
+import LandlordProfile from "./Pages/Landlord/Profile";
+import AddProperty from "./Pages/Landlord/AddProperty";
+import Tenants from "./Pages/Landlord/Tenants";
+import Payments from "./Pages/Landlord/Payments";
+import Income from "./Pages/Landlord/Income";
+import LandlordRequests from "./Pages/Landlord/Requests";
+import VacantUnits from "./Pages/Landlord/VacantUnits";
+import RentDue from "./Pages/Landlord/RentDue";
+import Applica from "./Pages/Landlord/Applica";
+import Alerts from "./Pages/Alerts";
+import Settings from "./Pages/Settings";
+import TenantmDashboard from "./Pages/Landlord/TenantmDashboard";
+import TenantDashboard from "./Pages/Tenant/Dashboard";
+import TenantRentHistory from "./Pages/Tenant/RentHistory";
+import TenantMaintenance from "./Pages/Tenant/Maintenance";
+import ExploreHouses from "./Pages/Tenant/ExploreHouses";
+import HouseDetails from "./Pages/Tenant/PropertyDetails";
+import TenantCurrentProperty from "./Pages/Tenant/Current-property";
 
 // ... (Your existing imports)
 
