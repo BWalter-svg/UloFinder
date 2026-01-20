@@ -14,9 +14,9 @@ export default function VerificationHub() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data } = await supabase
-          .from("agent_verification")
+          .from("landlord_verification")
           .select("*")
-          .eq("agent_id", user.id)
+          .eq("landlord_id", user.id)
           .single();
         setStatus(data);
       }
@@ -40,7 +40,7 @@ export default function VerificationHub() {
         </div>
         <div className="status-text">
           <h3>Status: <span className={`badge ${status?.status || 'unverified'}`}>{status?.status || 'Not Started'}</span></h3>
-          <p>{status?.status === 'approved' ? "You are a verified Ulohub Agent." : "Follow the steps below to get verified."}</p>
+          <p>{status?.status === 'approved' ? "You are a verified Ulohub Landlord." : "Follow the steps below to get verified."}</p>
         </div>
       </div>
 
