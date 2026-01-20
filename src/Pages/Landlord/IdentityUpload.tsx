@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Upload, ChevronLeft, FileText, X, Loader2 } from "lucide-react";
+import { Upload, ChevronLeft, FileText, X, Loader2, CheckCircle } from "lucide-react";
 import supabase from "../../api/supabaseClient";
+import confetti from "canvas-confetti"; // Install this: npm install canvas-confetti
 
 export default function IdentityUpload() {
   const navigate = useNavigate();
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false); // Success state
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -23,22 +25,21 @@ export default function IdentityUpload() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Authentication failed");
 
-      // 1. Create unique path: user_id/timestamp_filename
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
 
-      // 2. Upload to Supabase Storage
+      // 1. Upload to Storage
       const { error: uploadError } = await supabase.storage
         .from('verification-docs')
         .upload(fileName, file);
 
       if (uploadError) throw uploadError;
 
-      // 3. Update the agent_verification table
+      // 2. Update Table (Renamed to landlord_verification)
       const { error: dbError } = await supabase
-        .from('agent_verification')
+        .from('landlord_verification') 
         .upsert({
-          agent_id: user.id,
+          landlord_id: user.id, // Renamed key
           id_url: fileName,
           status: 'pending',
           updated_at: new Date().toISOString(),
@@ -46,14 +47,38 @@ export default function IdentityUpload() {
 
       if (dbError) throw dbError;
 
-      alert("Documents uploaded successfully!");
-      navigate("/landlord/verify");
+      // 3. Trigger Success!
+      setIsSuccess(true);
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#007bff', '#28a745', '#ffffff']
+      });
+
     } catch (err: any) {
       alert(err.message || "An error occurred during upload");
     } finally {
       setUploading(false);
     }
   };
+
+  if (isSuccess) {
+    return (
+      <div className="success-screen">
+        <div className="success-card">
+          <div className="check-animation">
+            <CheckCircle size={100} color="#28a745" strokeWidth={1.5} />
+          </div>
+          <h1>Perfect!</h1>
+          <p>Your identity documents have been submitted securely. Our team will review them within 24 hours.</p>
+          <button onClick={() => navigate("/landlord/dashboard")} className="done-btn">
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="verify-hub-container">
@@ -63,7 +88,7 @@ export default function IdentityUpload() {
 
       <div className="verify-header">
         <h1>Upload Identity</h1>
-        <p>Please provide a clear photo of your Government issued ID (NIN, BVN, or Driver's License).</p>
+        <p>Please provide a clear photo of your Government issued ID.</p>
       </div>
 
       <div 
@@ -84,7 +109,7 @@ export default function IdentityUpload() {
           </label>
         ) : (
           <div className="file-preview">
-            <FileText size={40} color="var(--primary-blue)" />
+            <FileText size={40} color="#007bff" />
             <div className="file-details">
               <h4>{file.name}</h4>
               <p>{(file.size / 1024 / 1024).toFixed(2)} MB</p>
@@ -94,10 +119,6 @@ export default function IdentityUpload() {
             </button>
           </div>
         )}
-      </div>
-
-      <div className="security-lockout">
-        <p> Your document is encrypted and stored securely. Only Ulohub admins can view this for verification purposes.</p>
       </div>
 
       <button 
