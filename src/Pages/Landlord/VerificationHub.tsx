@@ -1,38 +1,80 @@
-import React from "react";
-import { CheckCircle, ShieldCheck, FileText, Camera, MapPin } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ShieldCheck, Camera, FileText, CheckCircle2, ChevronRight, AlertCircle } from "lucide-react";
+import supabase from "../../api/supabaseClient";
 import "./Verification.css";
 
 export default function VerificationHub() {
-  const steps = [
-    { id: 1, title: "Identity Check", desc: "NIN or BVN Verification", icon: <ShieldCheck />, status: "completed" },
-    { id: 2, title: "Face Match", desc: "Take a live selfie", icon: <Camera />, status: "pending" },
-    { id: 3, title: "Business Proof", desc: "CAC or Association Docs", icon: <FileText />, status: "locked" },
-    { id: 4, title: "Office Address", desc: "Physical location check", icon: <MapPin />, status: "locked" },
-  ];
+  const navigate = useNavigate();
+  const [status, setStatus] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function getStatus() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from("agent_verification")
+          .select("*")
+          .eq("agent_id", user.id)
+          .single();
+        setStatus(data);
+      }
+      setLoading(false);
+    }
+    getStatus();
+  }, []);
+
+  if (loading) return <div className="verify-loader">Loading your status...</div>;
 
   return (
-    <div className="verify-container">
-      <div className="verify-card">
-        <h2 className="verify-title">Get Verified</h2>
-        <p className="verify-subtitle">Complete these steps to start posting houses on Ulohub.</p>
+    <div className="verify-hub-container">
+      <div className="verify-header">
+        <h1>Trust & Safety</h1>
+        <p>Complete your verification to unlock property listing features.</p>
+      </div>
 
-        <div className="steps-list">
-          {steps.map((step) => (
-            <div key={step.id} className={`step-item ${step.status}`}>
-              <div className="step-icon">{step.icon}</div>
-              <div className="step-info">
-                <h4>{step.title}</h4>
-                <p>{step.desc}</p>
-              </div>
-              <div className="step-status">
-                {step.status === "completed" ? <CheckCircle className="text-success" /> : null}
-              </div>
-            </div>
-          ))}
+      <div className="verify-status-card">
+        <div className="status-icon-wrap">
+          {status?.status === 'approved' ? <ShieldCheck color="#10b981" size={40} /> : <AlertCircle color="#f59e0b" size={40} />}
+        </div>
+        <div className="status-text">
+          <h3>Status: <span className={`badge ${status?.status || 'unverified'}`}>{status?.status || 'Not Started'}</span></h3>
+          <p>{status?.status === 'approved' ? "You are a verified Ulohub Agent." : "Follow the steps below to get verified."}</p>
+        </div>
+      </div>
+
+      <div className="steps-container">
+        {/* STEP 1: IDENTITY */}
+        <div className="step-card" onClick={() => !status && navigate("/landlord/verify/identity")}>
+          <div className="step-icon-main"><FileText /></div>
+          <div className="step-body">
+            <h4>Identity Verification</h4>
+            <p>Upload your NIN, BVN or Driver's License.</p>
+          </div>
+          <div className="step-action">
+            {status?.id_url ? <CheckCircle2 color="#10b981" /> : <ChevronRight />}
+          </div>
         </div>
 
-        <button className="verify-submit">Continue to Next Step</button>
+        {/* STEP 2: LIVENESS (LOCKED UNTIL STEP 1 DONE) */}
+        <div className={`step-card ${!status?.id_url ? 'locked' : ''}`}>
+          <div className="step-icon-main"><Camera /></div>
+          <div className="step-body">
+            <h4>Live Selfie Match</h4>
+            <p>Verify your face against your ID document.</p>
+          </div>
+          <div className="step-action">
+             <ChevronRight />
+          </div>
+        </div>
       </div>
+
+      {status?.status === 'pending' && (
+        <div className="pending-notice">
+          <p> Your documents are currently being reviewed by our team. This usually takes 24 hours.</p>
+        </div>
+      )}
     </div>
   );
 }
