@@ -12,7 +12,7 @@ const HelpPage: React.FC = () => {
   const [error, setError] = useState("");
 
   // WhatsApp link
-  const waNumber = "2349061232309";
+  const waNumber = "234 906 123 2309";
   const waMessage = `Hi UloHub Support, I need help with my account.`;
   const waLink = `https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}`;
 
@@ -142,3 +142,4 @@ const HelpPage: React.FC = () => {
 
 
 export default HelpPage;
+
