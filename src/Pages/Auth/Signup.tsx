@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Signup.css"; // Ensure this contains the tweaked CSS from earlier
-import { Home, User } from "lucide-react";
+import { Home, User, Mail, Lock, UserCircle } from "lucide-react";
 import supabase from "../../api/supabaseClient";
 import logo from "../../assets/ulohub.jpg";
+import "./Signup.css";
+
 export default function Signup() {
   const navigate = useNavigate();
+  const [fullName, setFullName] = useState(""); // Fixes the "Optional" name bug
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -14,7 +16,7 @@ export default function Signup() {
 
   const passwordsMatch = password === confirmPassword && password.length > 0;
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!role) return alert("Please select whether you are a Landlord or Tenant");
     if (!passwordsMatch) return alert("Passwords do not match");
@@ -22,18 +24,32 @@ export default function Signup() {
     try {
       setLoading(true);
 
+      // 1. Create the Auth User
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
+
       if (error) throw error;
 
-      await supabase.from("profiles").insert([
-        { id: data.user?.id, email, role },
-      ]);
+      if (data.user) {
+        // 2. Insert the Profile (Connecting the Full Name here)
+        const { error: profileError } = await supabase.from("profiles").insert([
+          { 
+            id: data.user.id, 
+            email, 
+            role, 
+            full_name: fullName // This ensures the name isn't "Optional"
+          },
+        ]);
 
-      navigate(`/onboarding/${role}`);
-    } catch (err) {
+        if (profileError) throw profileError;
+
+        // 3. Success!
+        alert("Account created successfully!");
+        navigate(`/onboarding/${role}`);
+      }
+    } catch (err: any) {
       alert(err.message);
     } finally {
       setLoading(false);
@@ -43,97 +59,92 @@ export default function Signup() {
   return (
     <div className="signup-container">
       <div className="signup-card">
-        <img src={logo} alt="Ulohub Logo" className="signup-logo" />
-        <h2 className="signup-title">Create Account</h2>
-        <p className="signup-subtitle">Join the Ulohub community today</p>
+        <div className="signup-header">
+          <img src={logo} alt="Ulohub" className="signup-logo" />
+          <h2>Create Account</h2>
+          <p>Join thousands of users on Ulohub</p>
+        </div>
 
         <form className="signup-form" onSubmit={handleSubmit}>
+          {/* Full Name Input */}
           <div className="input-group">
-            <label>Email Address</label>
+            <label><UserCircle size={16} /> Full Name</label>
+            <input
+              type="text"
+              placeholder="Enter your full name"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+            />
+          </div>
+
+          {/* Email Input */}
+          <div className="input-group">
+            <label><Mail size={16} /> Email Address</label>
             <input
               type="email"
-              placeholder="e.g. name@example.com"
+              placeholder="name@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
 
-          <div className="input-group">
-            <label>Password</label>
-            <input
-              type="password"
-              placeholder="Create a strong password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="input-group">
-            <label>Confirm Password</label>
-            <input
-              type="password"
-              placeholder="Repeat your password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-            {confirmPassword.length > 0 && (
-              <p style={{
-                  fontSize: "0.75rem",
-                  fontWeight: "600",
-                  color: passwordsMatch ? "#28a745" : "#dc3545",
-                  marginTop: "-10px",
-                  paddingLeft: "4px"
-                }}>
-                {passwordsMatch ? "✓ Passwords match" : "✗ Passwords do not match"}
-              </p>
-            )}
-          </div>
-
-          <div className="role-section">
-            <p>I am a...</p>
-            <div className="role-buttons">
-              <button
-                type="button"
-                className={`role-btn ${role === "landlord" ? "active" : ""}`}
-                onClick={() => setRole("landlord")}
-              >
-                <Home size={20} color={role === "landlord" ? "#007bff" : "#666"} />
-                <span>Landlord</span>
-              </button>
-
-              <button
-                type="button"
-                className={`role-btn ${role === "tenant" ? "active" : ""}`}
-                onClick={() => setRole("tenant")}
-              >
-                <User size={20} color={role === "tenant" ? "#007bff" : "#666"} />
-                <span>Tenant</span>
-              </button>
+          <div className="input-grid">
+            {/* Password */}
+            <div className="input-group">
+              <label><Lock size={16} /> Password</label>
+              <input
+                type="password"
+                placeholder="********"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            {/* Confirm Password */}
+            <div className="input-group">
+              <label><Lock size={16} /> Confirm</label>
+              <input
+                type="password"
+                placeholder="********"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
             </div>
           </div>
 
-          <button
-            type="submit"
-            className="signup-submit"
-            disabled={loading || !passwordsMatch}
-          >
-            {loading ? "Creating account..." : "Continue"}
+          {/* Role Selection */}
+          <div className="role-selector">
+            <p>Register as a:</p>
+            <div className="role-options">
+              <div 
+                className={`role-box ${role === "landlord" ? "active" : ""}`}
+                onClick={() => setRole("landlord")}
+              >
+                <Home size={24} />
+                <span>Landlord</span>
+              </div>
+              <div 
+                className={`role-box ${role === "tenant" ? "active" : ""}`}
+                onClick={() => setRole("tenant")}
+              >
+                <User size={24} />
+                <span>Tenant</span>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" className="signup-btn" disabled={loading || !passwordsMatch}>
+            {loading ? "Processing..." : "Create Account"}
           </button>
         </form>
 
-        <p className="login-text">
-          Already have an account?{" "}
-          <span className="login-link" onClick={() => navigate("/login")}>
-            Login
-          </span>
+        <p className="footer-text">
+          Already have an account? <span onClick={() => navigate("/login")}>Login</span>
         </p>
       </div>
     </div>
   );
 }
-
-
-
