@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { FiSearch, FiMapPin, FiInfo, FiCheckCircle, FiLoader } from "react-icons/fi";
 import supabase from "../../api/supabaseClient";
 import "./ExploreHouses.css";
 
@@ -20,8 +21,13 @@ const ExploreHouses: React.FC = () => {
 
   const fetchProperties = async () => {
     setLoading(true);
+    // Note: Using your existing "properties" table name
     let query = supabase.from("properties").select("*");
-    if (search) query = query.ilike("location", `%${search}%`);
+    
+    if (search) {
+      query = query.ilike("location", `%${search}%`);
+    }
+
     const { data, error } = await query;
     if (error) console.error(error);
     else setProperties(data as Property[]);
@@ -41,16 +47,20 @@ const ExploreHouses: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchProperties();
-    fetchMyRequests();
+    const delayDebounceFn = setTimeout(() => {
+      fetchProperties();
+    }, 500); // Debounce search to save Supabase calls
+
+    return () => clearTimeout(delayDebounceFn);
   }, [search]);
+
+  useEffect(() => {
+    fetchMyRequests();
+  }, []);
 
   const handleRequest = async (propertyId: string, landlordId: string) => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      alert("You must be logged in to request a property");
-      return;
-    }
+    if (!user) return alert("Please log in to make a request.");
 
     const { error } = await supabase.from("rental_requests").insert({
       property_id: propertyId,
@@ -59,90 +69,82 @@ const ExploreHouses: React.FC = () => {
       status: "pending",
     });
 
-    if (error) {
-      console.error("Request failed:", error);
-      alert("Request failed: " + error.message);
-    } else {
-      setMyRequests((prev) => [...prev, propertyId]);
-    }
+    if (error) alert(error.message);
+    else setMyRequests((prev) => [...prev, propertyId]);
   };
 
-  // Combine all property locations for top map
-  const topMapLocations = properties.map((p) => encodeURIComponent(p.location)).join("|");
-
   return (
-    <div className="explore-header">
-      <h1>Explore Houses</h1>
-
-      <input
-        type="text"
-        placeholder="Search by location..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="search-input"
-      />
-
-      {loading && <p>Loading...</p>}
-
-      {/* Top-of-page Google Map showing all properties */}
-      {properties.length > 0 && (
-        <div className="top-map-frame">
-          <iframe
-            title="all-properties-map"
-            width="100%"
-            height="400"
-            style={{ border: 0 }}
-            loading="lazy"
-            allowFullScreen
-            src={`https://www.google.com/maps?q=${topMapLocations}&output=embed`}
-          />
-        </div>
-      )}
-
-      {/* Property Cards */}
-      <div className="properties-grid">
-        {properties.map((p) => (
-          <div key={p.id} className="property-card">
-            {p.image_url && p.image_url[0] && (
-              <img src={p.image_url[0]} alt={p.title} className="property-image" />
-            )}
-            <div className="property-details">
-              <h3>{p.title}</h3>
-              <p>{p.location}</p>
-              <p>₦{p.price.toLocaleString()}</p>
-              {p.description && <p>{p.description.slice(0, 100)}...</p>}
-
-              {/* Individual property map */}
-              <div className="map-frame">
-                <iframe
-                  title={`map-${p.id}`}
-                  width="100%"
-                  height="200"
-                  style={{ border: 0 }}
-                  loading="lazy"
-                  allowFullScreen
-                  src={`https://www.google.com/maps?q=${encodeURIComponent(
-                    p.location
-                  )}&output=embed`}
-                />
-              </div>
-
-              {myRequests.includes(p.id) ? (
-                <button className="book-btn requested" disabled>
-                  Requested ✓
-                </button>
-              ) : (
-                <button
-                  className="book-btn"
-                  onClick={() => handleRequest(p.id, p.owner_id)}
-                >
-                  Request to Rent
-                </button>
-              )}
-            </div>
+    <div className="explore-container">
+      {/* Premium Search Header */}
+      <header className="explore-hero">
+        <div className="hero-content">
+          <h1>Find your next home</h1>
+          <p>Browse verified properties across Nigeria</p>
+          <div className="search-bar-wrapper">
+            <FiSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Enter location (e.g. Lekki, Lagos)..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
-        ))}
-      </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="explore-main">
+        <div className="results-header">
+          <h2>{properties.length} Properties found</h2>
+        </div>
+
+        {loading ? (
+          <div className="explore-loader">
+            <FiLoader className="spinner" />
+            <p>Scanning the market...</p>
+          </div>
+        ) : (
+          <div className="properties-grid">
+            {properties.map((p) => (
+              <div key={p.id} className="property-card">
+                <div className="image-container">
+                  <img 
+                    src={p.image_url?.[0] || "https://images.unsplash.com/photo-1568605114967-8130f3a36994"} 
+                    alt={p.title} 
+                  />
+                  <div className="price-tag">₦{p.price.toLocaleString()}</div>
+                </div>
+
+                <div className="property-info">
+                  <h3 className="property-title">{p.title}</h3>
+                  <p className="property-location">
+                    <FiMapPin size={14} /> {p.location}
+                  </p>
+                  
+                  <div className="property-meta">
+                     <p className="property-desc">
+                       {p.description ? `${p.description.slice(0, 70)}...` : "No description available."}
+                     </p>
+                  </div>
+
+                  {myRequests.includes(p.id) ? (
+                    <button className="book-btn requested" disabled>
+                      <FiCheckCircle /> Requested
+                    </button>
+                  ) : (
+                    <button
+                      className="book-btn"
+                      onClick={() => handleRequest(p.id, p.owner_id)}
+                    >
+                      View Details & Request
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </main>
     </div>
   );
 };
