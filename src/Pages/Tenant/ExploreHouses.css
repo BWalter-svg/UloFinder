@@ -149,3 +149,117 @@
   color: #94a3b8;
   cursor: not-allowed;
 }
+.explore-container {
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+.explore-hero {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  padding: 60px 20px;
+  text-align: center;
+  color: white;
+}
+
+.hero-content h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; }
+.hero-content p { opacity: 0.9; font-size: 1.1rem; }
+
+.search-bar-wrapper {
+  max-width: 600px;
+  margin: 30px auto 0;
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  font-size: 20px;
+}
+
+.search-bar-wrapper input {
+  width: 100%;
+  padding: 18px 18px 18px 55px;
+  border-radius: 50px;
+  border: none;
+  font-size: 1rem;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  outline: none;
+}
+
+.explore-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.properties-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+.property-card {
+  background: white;
+  border-radius: 24px;
+  overflow: hidden;
+  transition: 0.3s;
+  border: 1px solid #e2e8f0;
+}
+
+.property-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.image-container {
+  position: relative;
+  height: 220px;
+}
+
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.price-tag {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  background: white;
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-weight: 800;
+  color: #0369a1;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.property-info { padding: 20px; }
+.property-title { font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 5px; }
+.property-location { display: flex; align-items: center; gap: 6px; color: #64748b; font-size: 0.9rem; margin-bottom: 15px;}
+.property-desc { font-size: 0.85rem; color: #64748b; line-height: 1.5; margin-bottom: 20px;}
+
+.book-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  background: #0284c7;
+  color: white;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.book-btn.requested {
+  background: #dcfce7;
+  color: #166534;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
