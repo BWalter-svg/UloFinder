@@ -1,98 +1,134 @@
-import React, { useContext } from "react";
-import { ThemeContext } from "../context/ThemeContext";
-import { Moon, Sun, User, Bell, Shield } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { User, Lock, Bell, Shield, LogOut, Camera, Loader2 } from "lucide-react";
+import supabase from "../../api/supabaseClient";
+import "./Settings.css";
 
-const Settings: React.FC = () => {
-  const { darkMode, toggleTheme } = useContext(ThemeContext);
+export default function Settings() {
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [profile, setProfile] = useState({
+    full_name: "",
+    email: "",
+    phone: "",
+    role: "",
+    is_verified: false
+  });
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  async function fetchProfile() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+      
+      setProfile({
+        full_name: data?.full_name || "",
+        email: user.email || "",
+        phone: data?.phone || "",
+        role: data?.role || "landlord",
+        is_verified: data?.is_verified || false
+      });
+    }
+    setLoading(false);
+  }
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        full_name: profile.full_name,
+        phone: profile.phone
+      })
+      .eq("id", user?.id);
+
+    setSaving(false);
+    if (!error) alert("Profile updated successfully!");
+  };
+
+  if (loading) return <div className="settings-loader"><Loader2 className="spinner" /></div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 flex flex-col items-center py-10 px-4 transition-all duration-300">
-      <div className="w-full max-w-2xl">
-        {/* Title */}
-        <h1 className="text-4xl font-bold text-center mb-10 text-blue-600 dark:text-blue-400">
-          App Settings ⚙️
-        </h1>
+    <div className="settings-container">
+      <div className="settings-header">
+        <h1>Account Settings</h1>
+        <p>Manage your profile and platform preferences.</p>
+      </div>
 
-        {/* Settings Cards */}
-        <div className="space-y-6">
-          {/* Theme Toggle */}
-          <div className="flex items-center justify-between bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md hover:shadow-lg transition-all">
-            <div className="flex items-center gap-3">
-              {darkMode ? (
-                <Moon className="text-blue-500" size={24} />
-              ) : (
-                <Sun className="text-yellow-400" size={24} />
-              )}
-              <div>
-                <h2 className="font-semibold text-lg">Appearance</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Switch between Light and Dark mode
-                </p>
+      <div className="settings-grid">
+        {/* Navigation Sidebar */}
+        <aside className="settings-nav">
+          <button className="nav-item active"><User size={18} /> Profile</button>
+          <button className="nav-item"><Lock size={18} /> Security</button>
+          <button className="nav-item"><Bell size={18} /> Notifications</button>
+          <button className="nav-item logout"><LogOut size={18} /> Logout</button>
+        </aside>
+
+        {/* Main Content Area */}
+        <main className="settings-content">
+          <section className="settings-section">
+            <div className="profile-photo-section">
+              <div className="avatar-wrapper">
+                <img src={`https://ui-avatars.com/api/?name=${profile.full_name}&background=eff6ff&color=007bff`} alt="Avatar" />
+                <button className="edit-photo"><Camera size={14} /></button>
+              </div>
+              <div className="profile-badge">
+                <span className={`status-pill ${profile.is_verified ? 'verified' : 'unverified'}`}>
+                  <Shield size={12} /> {profile.is_verified ? "Verified Landlord" : "Unverified"}
+                </span>
               </div>
             </div>
-            <button
-              onClick={toggleTheme}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition ${
-                darkMode
-                  ? "bg-blue-600 hover:bg-blue-700 text-white"
-                  : "bg-blue-500 hover:bg-blue-600 text-white"
-              }`}
-            >
-              {darkMode ? "Light Mode" : "Dark Mode"}
-            </button>
-          </div>
 
-          {/* Notifications */}
-          <div className="flex items-center justify-between bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md hover:shadow-lg transition-all">
-            <div className="flex items-center gap-3">
-              <Bell className="text-blue-500" size={24} />
-              <div>
-                <h2 className="font-semibold text-lg">Notifications</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Manage push and email notifications
-                </p>
+            <form onSubmit={handleUpdateProfile} className="settings-form">
+              <div className="input-row">
+                <div className="input-group">
+                  <label>Full Name</label>
+                  <input 
+                    type="text" 
+                    value={profile.full_name} 
+                    onChange={(e) => setProfile({...profile, full_name: e.target.value})} 
+                  />
+                </div>
+                <div className="input-group">
+                  <label>Email Address</label>
+                  <input type="email" value={profile.email} disabled className="disabled-input" />
+                </div>
               </div>
-            </div>
-            <button className="px-4 py-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition text-sm font-medium">
-              Manage
-            </button>
-          </div>
 
-          {/* Profile Settings */}
-          <div className="flex items-center justify-between bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md hover:shadow-lg transition-all">
-            <div className="flex items-center gap-3">
-              <User className="text-blue-500" size={24} />
-              <div>
-                <h2 className="font-semibold text-lg">Profile</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Update your name, email, and password
-                </p>
+              <div className="input-row">
+                <div className="input-group">
+                  <label>Phone Number</label>
+                  <input 
+                    type="tel" 
+                    placeholder="+234..." 
+                    value={profile.phone} 
+                    onChange={(e) => setProfile({...profile, phone: e.target.value})} 
+                  />
+                </div>
+                <div className="input-group">
+                  <label>Role</label>
+                  <input type="text" value={profile.role} disabled className="capitalize disabled-input" />
+                </div>
               </div>
-            </div>
-            <button className="px-4 py-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition text-sm font-medium">
-              Edit
-            </button>
-          </div>
 
-          {/* Privacy */}
-          <div className="flex items-center justify-between bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md hover:shadow-lg transition-all">
-            <div className="flex items-center gap-3">
-              <Shield className="text-blue-500" size={24} />
-              <div>
-                <h2 className="font-semibold text-lg">Privacy</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Control data and security options
-                </p>
+              <div className="form-actions">
+                <button type="submit" className="save-btn" disabled={saving}>
+                  {saving ? "Saving..." : "Save Changes"}
+                </button>
               </div>
-            </div>
-            <button className="px-4 py-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition text-sm font-medium">
-              View
-            </button>
-          </div>
-        </div>
+            </form>
+          </section>
+        </main>
       </div>
     </div>
   );
-};
-
-export default Settings;
+}
