@@ -5,61 +5,54 @@ import {
   FiMessageCircle,
   FiCreditCard,
   FiTool,
-  FiTrendingUp,
+  FiActivity,
+  FiSearch,
   FiClock,
   FiLock,
 } from "react-icons/fi";
 import supabase from "../../api/supabaseClient";
-import "../Landlord/landlord.css";
-
-type Profile = {
-  full_name: string | null;
-};
+import "../Landlord/landlord.css"; // Reusing the tushed-up CSS
 
 const TenantDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-
   const [stats, setStats] = useState({
     rentals: 0,
     messages: 0,
   });
 
+  // Dynamic greeting based on Nigerian time
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good Morning" : hour < 18 ? "Good Afternoon" : "Good Evening";
+
   useEffect(() => {
     const fetchDashboardData = async () => {
       setLoading(true);
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return navigate("/login");
 
-      if (!user) {
-        navigate("/login");
-        return;
-      }
-
-      // Profile
+      // Fetch Profile
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("full_name")
+        .select("*")
         .eq("id", user.id)
         .single();
-
       setProfile(profileData);
 
       // Approved rentals
       const { count: rentalsCount } = await supabase
         .from("rental_requests")
-        .select("*", { count: "exact" })
+        .select("*", { count: "exact", head: true })
         .eq("tenant_id", user.id)
         .eq("status", "approved");
 
-      // Messages
+      // Messages (Where user is the tenant)
       const { count: messagesCount } = await supabase
-  .from("conversations")
-  .select("*", { count: "exact" })
-  .or(`tenant_id.eq.${user.id},landlord_id.eq.${user.id}`);
+        .from("conversations")
+        .select("*", { count: "exact", head: true })
+        .eq("tenant_id", user.id);
 
       setStats({
         rentals: rentalsCount || 0,
@@ -74,17 +67,17 @@ const TenantDashboard: React.FC = () => {
 
   const cards = [
     {
-    title: "Explore Houses",
-    icon: <FiHome />,
-    subtitle: "Find available homes",
-    type: "active",
-    route: "/tenant/explore-houses",
-  },
+      title: "Explore Houses",
+      icon: <FiSearch />,
+      subtitle: "FIND A HOME",
+      type: "active",
+      route: "/tenant/explore-houses",
+    },
     {
       title: "My Rentals",
       icon: <FiHome />,
       value: stats.rentals,
-      subtitle: "Approved properties",
+      subtitle: "ACTIVE LEASES",
       type: "active",
       route: "/tenant/current-property",
     },
@@ -92,41 +85,39 @@ const TenantDashboard: React.FC = () => {
       title: "Messages",
       icon: <FiMessageCircle />,
       value: stats.messages,
-      subtitle: "Unread conversations",
+      subtitle: "CONVERSATIONS",
       type: "active",
       route: "/messages",
     },
     {
       title: "Payments",
       icon: <FiCreditCard />,
-      subtitle: "Rent payments & receipts",
+      subtitle: "RENT & RECEIPTS",
       type: "locked",
     },
     {
       title: "Maintenance",
       icon: <FiTool />,
-      subtitle: "Request repairs easily",
+      subtitle: "REPAIR REQUESTS",
       type: "locked",
-    },
-    {
-      title: "Rent Summary",
-      icon: <FiTrendingUp />,
-      subtitle: "Monthly & yearly overview",
-      type: "info",
     },
     {
       title: "Lease Status",
       icon: <FiClock />,
-      subtitle: stats.rentals > 0 ? "Active lease" : "No active lease",
+      value: stats.rentals > 0 ? "Active" : "None",
+      subtitle: "CURRENT STATUS",
       type: "info",
     },
   ];
 
   if (loading) {
     return (
-      <p style={{ textAlign: "center", marginTop: 60 }}>
-        Loading your dashboard…
-      </p>
+      <div className="dashboard-wrapper">
+        <div className="loading-state">
+          <FiActivity className="spinner" />
+          <p>Setting up your dashboard...</p>
+        </div>
+      </div>
     );
   }
 
@@ -135,13 +126,17 @@ const TenantDashboard: React.FC = () => {
       <div className="dashboard">
         {/* HEADER */}
         <div className="dashboard-header">
-          <h1 className="dashboard-title">
-            <FiHome style={{ marginRight: 8 }} />
-            Tenant Dashboard
-          </h1>
-          <p className="dashboard-subtitle">
-            Welcome, {profile?.full_name || "Boss"}
-          </p>
+          <div className="header-text">
+            <h1 className="dashboard-title">
+               Tenant Hub
+            </h1>
+            <p className="dashboard-subtitle">
+              {greeting}, {profile?.full_name?.split(' ')[0] || "Boss"}
+            </p>
+          </div>
+          <div className="status-pill-header">
+             <span className="pulse"></span> Active Search
+          </div>
         </div>
 
         {/* CARDS */}
@@ -151,36 +146,28 @@ const TenantDashboard: React.FC = () => {
               key={index}
               className={`card ${card.type}`}
               onClick={() =>
-                card.type === "active" && card.route
-                  ? navigate(card.route)
-                  : null
+                card.type === "active" && card.route ? navigate(card.route) : null
               }
             >
               <div className="icon-circle">
-                {card.type === "locked" ? <FiLock /> : card.icon}
+                {card.type === "locked" ? <FiLock style={{ opacity: 0.5 }} /> : card.icon}
               </div>
 
               <div className="card-content">
+                <p className="card-subtitle-small">{card.subtitle}</p>
                 <h2 className="card-title">{card.title}</h2>
 
-                {card.type === "active" && (
-                  <p className="card-count">{card.value}</p>
-                )}
-
-                {card.type !== "active" && (
-                  <p className="card-subtitle">{card.subtitle}</p>
-                )}
-
-                {card.type === "locked" && (
-                  <span className="badge">Coming soon</span>
+                {card.type === "active" || card.type === "info" ? (
+                  <p className="card-count">{card.value ?? "View"}</p>
+                ) : (
+                  <div className="card-cta locked">Coming Soon</div>
                 )}
               </div>
             </div>
           ))}
         </div>
 
-        {/* FOOTER */}
-        <div className="dashboard-footer">UloHub © 2025</div>
+        <div className="dashboard-footer">UloHub © 2026 • Find your peace</div>
       </div>
     </div>
   );
