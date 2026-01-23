@@ -8,6 +8,7 @@ import {
   FiMoreHorizontal,
   FiLogOut,
   FiHelpCircle,
+  FiShield, // Icon for Admin
 } from "react-icons/fi";
 import supabase from "./../api/supabaseClient";
 
@@ -16,12 +17,10 @@ const BottomNav: React.FC = () => {
   const location = useLocation();
   const [showMore, setShowMore] = useState(false);
   const [hoveredMore, setHoveredMore] = useState<number | null>(null);
-  const [role, setRole] = useState<"tenant" | "landlord">("tenant");
+  const [role, setRole] = useState<"tenant" | "landlord" | "admin">("tenant");
 
   const hideNav = ["/", "/login", "/signup"].includes(location.pathname);
-  if (hideNav) return null;
 
-  // Fetch user role from Supabase
   useEffect(() => {
     const fetchRole = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -31,32 +30,36 @@ const BottomNav: React.FC = () => {
           .select("role")
           .eq("id", user.id)
           .single();
-        setRole(profile?.role === "landlord" ? "landlord" : "tenant");
+        
+        // Handle the three possible roles
+        setRole(profile?.role || "tenant");
       }
     };
     fetchRole();
   }, []);
 
-  // Navigation items
+  if (hideNav) return null;
+
+  // Navigation logic based on role
   const navItems = [
     {
       icon: FiHome,
-      path: role === "tenant" ? "/tenant/dashboard" : "/landlord/dashboard",
+      path: role === "landlord" ? "/landlord/dashboard" : "/tenant/dashboard",
       label: "Home",
     },
     {
       icon: FiClipboard,
-      path: role === "tenant" ? "/tenant/current-property" : "/landlord/properties",
-      label: "Properties",
+      path: role === "landlord" ? "/landlord/properties" : "/tenant/current-property",
+      label: role === "landlord" ? "Units" : "Rentals",
     },
     {
       icon: FiMessageSquare,
-      path: role === "tenant" ? "/messages" : "/messages",
+      path: "/messages",
       label: "Messages",
     },
     {
       icon: FiUser,
-      path: role === "tenant" ? "/tenant/profile" : "/landlord/profile",
+      path: role === "landlord" ? "/landlord/profile",
       label: "Profile",
     },
     {
@@ -67,55 +70,61 @@ const BottomNav: React.FC = () => {
     },
   ];
 
+  // Items inside the "More" floating panel
   const moreItems = [
+    // ONLY SHOW THIS IF THE USER IS AN ADMIN
+    ...(role === "admin" ? [{
+      icon: FiShield,
+      label: "Verify Landlords",
+      action: () => navigate("/admin/verify"),
+      color: "#facc15" // Gold color to make it stand out
+    }] : []),
+    {
+      icon: FiHelpCircle,
+      label: "Help",
+      action: () => navigate("/help")
+    },
     {
       icon: FiLogOut,
       label: "Logout",
       action: async () => {
         await supabase.auth.signOut();
-        localStorage.removeItem("role");
         navigate("/login");
       },
     },
-    { icon: FiHelpCircle, label: "Help", action: () => navigate("/help") },
   ];
 
   const isActive = (itemPath: string) =>
-    location.pathname === itemPath || location.pathname.startsWith(itemPath + "/");
+    location.pathname === itemPath || (itemPath !== "#" && location.pathname.startsWith(itemPath));
 
   return (
     <>
+      {/* Backdrop to close "More" menu when clicking outside */}
+      {showMore && (
+        <div 
+          onClick={() => setShowMore(false)} 
+          style={{ position: 'fixed', inset: 0, zIndex: 1000 }} 
+        />
+      )}
+
       {/* More floating panel */}
       <div
         style={{
           position: "fixed",
-          bottom: showMore ? 60 : -120,
+          bottom: showMore ? 80 : -200, // Lifted slightly higher for better spacing
           right: 16,
-          width: 160,
-          backgroundColor: "#0ea5e9",
-          borderRadius: 10,
-          boxShadow: "0 5px 15px rgba(0,0,0,0.2)",
+          width: 180,
+          backgroundColor: "#0369a1", // Deep blue
+          borderRadius: "16px",
+          boxShadow: "0 10px 25px rgba(0,0,0,0.3)",
           display: "flex",
           flexDirection: "column",
-          padding: "0.5rem 0",
-          transition: "bottom 0.3s ease-in-out",
+          padding: "0.75rem 0",
+          transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
           zIndex: 1001,
         }}
       >
-        <div
-          style={{
-            position: "absolute",
-            top: -8,
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: 0,
-            height: 0,
-            borderLeft: "8px solid transparent",
-            borderRight: "8px solid transparent",
-            borderBottom: "8px solid #0ea5e9",
-          }}
-        />
-        {moreItems.map((item, idx) => (
+        {moreItems.map((item: any, idx) => (
           <div
             key={idx}
             onClick={() => {
@@ -127,15 +136,16 @@ const BottomNav: React.FC = () => {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 8,
-              padding: "0.5rem 1rem",
+              gap: 12,
+              padding: "0.75rem 1.25rem",
               cursor: "pointer",
-              color: hoveredMore === idx ? "#fffb" : "#fff",
+              color: item.color || (hoveredMore === idx ? "#bae6fd" : "#fff"),
+              backgroundColor: hoveredMore === idx ? "rgba(255,255,255,0.1)" : "transparent",
               transition: "0.2s",
             }}
           >
-            <item.icon size={18} />
-            <span>{item.label}</span>
+            <item.icon size={20} />
+            <span style={{ fontWeight: 500 }}>{item.label}</span>
           </div>
         ))}
       </div>
@@ -144,18 +154,21 @@ const BottomNav: React.FC = () => {
       <div
         style={{
           width: "100%",
-          height: "60px",
-          backgroundColor: "#ffffffff",
+          height: "70px",
+          backgroundColor: "#ffffff",
           display: "flex",
           justifyContent: "space-around",
           alignItems: "center",
           position: "fixed",
           bottom: 0,
           zIndex: 1000,
+          borderTop: "1px solid #f1f5f9",
+          paddingBottom: "env(safe-area-inset-bottom)", // Fix for iPhones with home bars
         }}
       >
         {navItems.map((item, idx) => {
           const Icon = item.icon;
+          const active = isActive(item.path);
           return (
             <div
               key={idx}
@@ -166,12 +179,19 @@ const BottomNav: React.FC = () => {
                 alignItems: "center",
                 justifyContent: "center",
                 cursor: "pointer",
-                color: isActive(item.path) ? "#0e84e6ff" : "#0ea5e9",
-                transition: "0.2s",
+                color: active ? "#0ea5e9" : "#94a3b8",
+                transition: "0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                transform: active ? "scale(1.1)" : "scale(1)",
               }}
             >
-              <Icon size={22} />
-              <span style={{ fontSize: "0.65rem", marginTop: 2 }}>{item.label}</span>
+              <Icon size={active ? 24 : 22} />
+              <span style={{ 
+                fontSize: "0.7rem", 
+                marginTop: 4, 
+                fontWeight: active ? 700 : 500 
+              }}>
+                {item.label}
+              </span>
             </div>
           );
         })}
