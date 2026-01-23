@@ -150,3 +150,4 @@ const ExploreHouses: React.FC = () => {
 };
 
 export default ExploreHouses;
+
