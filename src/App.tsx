@@ -37,9 +37,10 @@ import TenantCurrentProperty from "./Pages/Tenant/Current-property";
 // ... (Your existing imports)
 
 // NEW Verification & Admin Imports
+import AdminRoute from "./Components/AdminRoute";
 import VerificationHub from "./Pages/Landlord/VerificationHub";
 import IdentityUpload from "./Pages/Landlord/IdentityUpload";
-import AdminApproval from "./Pages/Admin/AdminApproval"; 
+import AdminVerification from "./Pages/Admin/AdminVerification"; 
 
 const App: React.FC = () => {
   return (
@@ -76,7 +77,7 @@ const App: React.FC = () => {
       <Route path="/tenant" element={<LayoutRoute element={<TenantmDashboard />} />} />
 
       {/* --- NEW ADMIN ROUTE --- */}
-     <Route path="/admin/approvals" element={<LayoutRoute element={<AdminApproval />} />} />
+     <Route path="/admin/verify" element={<AdminRoute><AdminVerification /></AdminRoute>
       {/* Alerts / Settings */}
       <Route path="/notifications" element={<LayoutRoute element={<Alerts />} />} />
       <Route path="/settings" element={<LayoutRoute element={<Settings />} />} />
