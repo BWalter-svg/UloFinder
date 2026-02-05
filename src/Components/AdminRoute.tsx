@@ -9,31 +9,54 @@ export default function AdminRoute({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     async function checkAdmin() {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
+      try {
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        
+        if (authError || !user) {
+          console.log("AdminRoute: No user found", authError);
+          setIsAdmin(false);
+          setLoading(false);
+          return;
+        }
+
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+
+        if (profileError) {
+          console.error("AdminRoute: Profile fetch error", profileError);
+          setIsAdmin(false);
+        } else {
+          console.log("AdminRoute: Found role ->", profile?.role);
+          // Check if it's EXACTLY 'admin' (case sensitive)
+          setIsAdmin(profile?.role === "admin");
+        }
+      } catch (err) {
+        console.error("AdminRoute: Unexpected error", err);
         setIsAdmin(false);
+      } finally {
         setLoading(false);
-        return;
       }
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single();
-
-      setIsAdmin(profile?.role === "admin");
-      setLoading(false);
     }
     checkAdmin();
   }, []);
 
-  if (loading) return <div className="admin-loader"><Loader2 className="spinner" /></div>;
+  // While checking, show the loader
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}>
+        <Loader2 className="animate-spin" size={48} />
+        <p>Checking permissions...</p>
+      </div>
+    );
+  }
 
-  if (!isAdmin) {
-    // If not admin, kick them to their dashboard
-    return <Navigate to="/dashboard" replace />;
+  // If the check finished and isAdmin is still not true, redirect
+  if (isAdmin !== true) {
+    console.log("AdminRoute: Redirecting to landing because isAdmin is", isAdmin);
+    return <Navigate to="/" replace />; 
   }
 
   return <>{children}</>;
