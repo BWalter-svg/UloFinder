@@ -1,63 +1,65 @@
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import supabase from "../api/supabaseClient";
-import { Loader2 } from "lucide-react";
 
-export default function AdminRoute({ children }: { children: React.ReactNode }) {
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [loading, setLoading] = useState(true);
+interface AdminRouteProps {
+  children: React.ReactNode;
+}
+
+const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
+  const [status, setStatus] = useState({
+    loading: true,
+    isAdmin: false,
+    reason: "Initializing"
+  });
 
   useEffect(() => {
-    async function checkAdmin() {
+    async function checkUser() {
       try {
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        const { data: { user } } = await supabase.auth.getUser();
         
-        if (authError || !user) {
-          console.log("AdminRoute: No user found", authError);
-          setIsAdmin(false);
-          setLoading(false);
+        if (!user) {
+          setStatus({ loading: false, isAdmin: false, reason: "No user found" });
           return;
         }
 
-        const { data: profile, error: profileError } = await supabase
+        const { data: profile, error } = await supabase
           .from("profiles")
           .select("role")
           .eq("id", user.id)
           .single();
 
-        if (profileError) {
-          console.error("AdminRoute: Profile fetch error", profileError);
-          setIsAdmin(false);
-        } else {
-          console.log("AdminRoute: Found role ->", profile?.role);
-          // Check if it's EXACTLY 'admin' (case sensitive)
-          setIsAdmin(profile?.role === "admin");
+        if (error || !profile) {
+          setStatus({ loading: false, isAdmin: false, reason: "Profile error" });
+          return;
         }
+
+        setStatus({ 
+          loading: false, 
+          isAdmin: profile.role === "admin", 
+          reason: profile.role 
+        });
       } catch (err) {
-        console.error("AdminRoute: Unexpected error", err);
-        setIsAdmin(false);
-      } finally {
-        setLoading(false);
+        setStatus({ loading: false, isAdmin: false, reason: "System error" });
       }
     }
-    checkAdmin();
+    checkUser();
   }, []);
 
-  // While checking, show the loader
-  if (loading) {
+  if (status.loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}>
-        <Loader2 className="animate-spin" size={48} />
-        <p>Checking permissions...</p>
+      <div className="flex items-center justify-center h-screen">
+        <p>Verifying admin status...</p>
       </div>
     );
   }
 
-  // If the check finished and isAdmin is still not true, redirect
-  if (isAdmin !== true) {
-    console.log("AdminRoute: Redirecting to landing because isAdmin is", isAdmin);
-    return <Navigate to="/" replace />; 
+  if (!status.isAdmin) {
+    console.error("Access Denied. Reason:", status.reason);
+    return <Navigate to="/landlord/dashboard" replace />;
   }
 
   return <>{children}</>;
-}
+};
+
+export default AdminRoute;
