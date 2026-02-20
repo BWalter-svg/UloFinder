@@ -8,7 +8,7 @@ import {
   FiMoreHorizontal,
   FiLogOut,
   FiHelpCircle,
-  FiShield, // Icon for Admin
+  FiShield, 
 } from "react-icons/fi";
 import supabase from "./../api/supabaseClient";
 
@@ -17,7 +17,7 @@ const BottomNav: React.FC = () => {
   const location = useLocation();
   const [showMore, setShowMore] = useState(false);
   const [hoveredMore, setHoveredMore] = useState<number | null>(null);
-  const [role, setRole] = useState<"tenant" | "landlord" | "admin">("tenant");
+  const [role, setRole] = useState<"tenant" | "landlord" | "admin" | null>(null);
 
   const hideNav = ["/", "/login", "/signup"].includes(location.pathname);
 
@@ -31,7 +31,6 @@ const BottomNav: React.FC = () => {
           .eq("id", user.id)
           .single();
         
-        // Handle the three possible roles
         setRole(profile?.role || "tenant");
       }
     };
@@ -59,7 +58,8 @@ const BottomNav: React.FC = () => {
     },
     {
       icon: FiUser,
-      path: role === "landlord" ? "/landlord/profile",
+      // FIXED: Added the ":" and fallback path to resolve Vercel build error
+      path: role === "landlord" ? "/landlord/profile" : "/tenant/dashboard", 
       label: "Profile",
     },
     {
@@ -70,14 +70,12 @@ const BottomNav: React.FC = () => {
     },
   ];
 
-  // Items inside the "More" floating panel
   const moreItems = [
-    // ONLY SHOW THIS IF THE USER IS AN ADMIN
     ...(role === "admin" ? [{
       icon: FiShield,
       label: "Verify Landlords",
       action: () => navigate("/admin/verify"),
-      color: "#facc15" // Gold color to make it stand out
+      color: "#facc15" 
     }] : []),
     {
       icon: FiHelpCircle,
@@ -99,7 +97,6 @@ const BottomNav: React.FC = () => {
 
   return (
     <>
-      {/* Backdrop to close "More" menu when clicking outside */}
       {showMore && (
         <div 
           onClick={() => setShowMore(false)} 
@@ -107,14 +104,13 @@ const BottomNav: React.FC = () => {
         />
       )}
 
-      {/* More floating panel */}
       <div
         style={{
           position: "fixed",
-          bottom: showMore ? 80 : -200, // Lifted slightly higher for better spacing
+          bottom: showMore ? 80 : -300, 
           right: 16,
           width: 180,
-          backgroundColor: "#0369a1", // Deep blue
+          backgroundColor: "#0369a1", 
           borderRadius: "16px",
           boxShadow: "0 10px 25px rgba(0,0,0,0.3)",
           display: "flex",
@@ -150,7 +146,6 @@ const BottomNav: React.FC = () => {
         ))}
       </div>
 
-      {/* Bottom Navbar */}
       <div
         style={{
           width: "100%",
@@ -163,7 +158,7 @@ const BottomNav: React.FC = () => {
           bottom: 0,
           zIndex: 1000,
           borderTop: "1px solid #f1f5f9",
-          paddingBottom: "env(safe-area-inset-bottom)", // Fix for iPhones with home bars
+          paddingBottom: "env(safe-area-inset-bottom)", 
         }}
       >
         {navItems.map((item, idx) => {
