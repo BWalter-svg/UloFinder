@@ -16,10 +16,11 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
   useEffect(() => {
     async function checkUser() {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { session } } = await supabase.auth.getSession();
+        const user = session?.user;
         
         if (!user) {
-          setStatus({ loading: false, isAdmin: false, reason: "No user found" });
+          setStatus({ loading: false, isAdmin: false, reason: "No Session Found" });
           return;
         }
 
@@ -30,17 +31,24 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
           .single();
 
         if (error || !profile) {
-          setStatus({ loading: false, isAdmin: false, reason: "Profile error" });
+          setStatus({ loading: false, isAdmin: false, reason: "No Profile in DB" });
           return;
+        }
+
+        const isUserAdmin = profile.role === "admin";
+        
+        // This alert will tell us EXACTLY what is wrong before the redirect happens
+        if (!isUserAdmin) {
+          alert(`Access Denied! Your role is: ${profile.role}`);
         }
 
         setStatus({ 
           loading: false, 
-          isAdmin: profile.role === "admin", 
+          isAdmin: isUserAdmin, 
           reason: profile.role 
         });
       } catch (err) {
-        setStatus({ loading: false, isAdmin: false, reason: "System error" });
+        setStatus({ loading: false, isAdmin: false, reason: "Crash" });
       }
     }
     checkUser();
@@ -49,13 +57,14 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
   if (status.loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <p>Verifying admin status...</p>
+        <p className="animate-pulse">Verifying Access Rights...</p>
       </div>
     );
   }
 
   if (!status.isAdmin) {
-    console.error("Access Denied. Reason:", status.reason);
+    // Note: If you end up at the landing page "/", it means your App.tsx is broken.
+    // This line sends you to "/landlord/dashboard".
     return <Navigate to="/landlord/dashboard" replace />;
   }
 
