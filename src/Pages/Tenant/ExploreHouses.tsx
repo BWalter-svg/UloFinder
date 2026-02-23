@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { FiSearch, FiMapPin, FiInfo, FiCheckCircle, FiLoader } from "react-icons/fi";
+import { FiSearch, FiMapPin, FiCheckCircle, FiLoader } from "react-icons/fi";
 import supabase from "../../api/supabaseClient";
 import "./ExploreHouses.css";
 
+// 1. Updated Type with Nested Profile
 type Property = {
   id: string;
   title: string;
@@ -11,6 +12,10 @@ type Property = {
   description?: string;
   image_url?: string[];
   owner_id: string;
+  profiles?: {
+    company_name: string;
+    full_name: string;
+  };
 };
 
 const ExploreHouses: React.FC = () => {
@@ -21,42 +26,40 @@ const ExploreHouses: React.FC = () => {
 
   const fetchProperties = async () => {
     setLoading(true);
-    // Note: Using your existing "properties" table name
-    let query = supabase.from("properties").select("*");
+    // 2. Relational Join: Fetching company_name from profiles
+    let query = supabase
+      .from("properties")
+      .select(`
+        *,
+        profiles:owner_id (
+          company_name,
+          full_name
+        )
+      `);
     
     if (search) {
       query = query.ilike("location", `%${search}%`);
     }
 
     const { data, error } = await query;
-    if (error) console.error(error);
-    else setProperties(data as Property[]);
+    if (error) console.error("Fetch Error:", error);
+    else setProperties(data as unknown as Property[]);
     setLoading(false);
   };
 
   const fetchMyRequests = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-
-    const { data } = await supabase
-      .from("rental_requests")
-      .select("property_id")
-      .eq("tenant_id", user.id);
-
+    const { data } = await supabase.from("rental_requests").select("property_id").eq("tenant_id", user.id);
     if (data) setMyRequests(data.map((r) => r.property_id));
   };
 
   useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      fetchProperties();
-    }, 500); // Debounce search to save Supabase calls
-
+    const delayDebounceFn = setTimeout(() => fetchProperties(), 500);
     return () => clearTimeout(delayDebounceFn);
   }, [search]);
 
-  useEffect(() => {
-    fetchMyRequests();
-  }, []);
+  useEffect(() => { fetchMyRequests(); }, []);
 
   const handleRequest = async (propertyId: string, landlordId: string) => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -75,11 +78,10 @@ const ExploreHouses: React.FC = () => {
 
   return (
     <div className="explore-container">
-      {/* Premium Search Header */}
       <header className="explore-hero">
         <div className="hero-content">
           <h1>Find your next home</h1>
-          <p>Browse verified properties across Nigeria</p>
+          <p>Browse listings from verified agencies across Nigeria</p>
           <div className="search-bar-wrapper">
             <FiSearch className="search-icon" />
             <input
@@ -92,7 +94,6 @@ const ExploreHouses: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="explore-main">
         <div className="results-header">
           <h2>{properties.length} Properties found</h2>
@@ -105,43 +106,51 @@ const ExploreHouses: React.FC = () => {
           </div>
         ) : (
           <div className="properties-grid">
-            {properties.map((p) => (
-              <div key={p.id} className="property-card">
-                <div className="image-container">
-                  <img 
-                    src={p.image_url?.[0] || "https://images.unsplash.com/photo-1568605114967-8130f3a36994"} 
-                    alt={p.title} 
-                  />
-                  <div className="price-tag">₦{p.price.toLocaleString()}</div>
-                </div>
-
-                <div className="property-info">
-                  <h3 className="property-title">{p.title}</h3>
-                  <p className="property-location">
-                    <FiMapPin size={14} /> {p.location}
-                  </p>
-                  
-                  <div className="property-meta">
-                     <p className="property-desc">
-                       {p.description ? `${p.description.slice(0, 70)}...` : "No description available."}
-                     </p>
+            {properties.map((p) => {
+              // 3. Branding Logic: Priority to Company Name
+              const brandName = p.profiles?.company_name || p.profiles?.full_name || "Direct Landlord";
+              
+              return (
+                <div key={p.id} className="property-card">
+                  {/* NEW BRAND HEADER */}
+                  <div className="brand-header">
+                    <span className="brand-name">{brandName}</span>
+                    {p.profiles?.company_name && <FiCheckCircle className="verified-badge" title="Registered Business" />}
                   </div>
 
-                  {myRequests.includes(p.id) ? (
-                    <button className="book-btn requested" disabled>
-                      <FiCheckCircle /> Requested
-                    </button>
-                  ) : (
-                    <button
-                      className="book-btn"
-                      onClick={() => handleRequest(p.id, p.owner_id)}
-                    >
-                      View Details & Request
-                    </button>
-                  )}
+                  <div className="image-container">
+                    <img 
+                      src={p.image_url?.[0] || "https://images.unsplash.com/photo-1568605114967-8130f3a36994"} 
+                      alt={p.title} 
+                    />
+                    <div className="price-tag">₦{p.price.toLocaleString()}</div>
+                  </div>
+
+                  <div className="property-info">
+                    <h3 className="property-title">{p.title}</h3>
+                    <p className="property-location">
+                      <FiMapPin size={14} /> {p.location}
+                    </p>
+                    
+                    <div className="property-meta">
+                       <p className="property-desc">
+                         {p.description ? `${p.description.slice(0, 65)}...` : "Premium listing available now."}
+                       </p>
+                    </div>
+
+                    {myRequests.includes(p.id) ? (
+                      <button className="book-btn requested" disabled>
+                        <FiCheckCircle /> Requested
+                      </button>
+                    ) : (
+                      <button className="book-btn" onClick={() => handleRequest(p.id, p.owner_id)}>
+                        View Details & Request
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </main>
@@ -150,4 +159,3 @@ const ExploreHouses: React.FC = () => {
 };
 
 export default ExploreHouses;
-
