@@ -82,13 +82,21 @@ const LayoutRoute: React.FC<LayoutRouteProps> = ({ element, useLayout = true }) 
     }
   }
 
-  // 3. Verification Protection
-  if (location.pathname === "/landlord/addproperty" && !isVerified) {
-    alert("You must be verified to post properties.");
-    return <Navigate to="/landlord/dashboard" replace />;
+  // 3. ADMIN: Protect the admin approval page
+  if (location.pathname.startsWith("/admin")) {
+    // If we are still loading, don't redirect yet!
+    if (loading) return null; 
+
+    if (!isAdmin) {
+      console.warn("Bouncer says NO. isAdmin state is false.");
+      return <Navigate to="/landlord/dashboard" replace />;
+    }
+    
+    console.log("Bouncer says YES. Welcome to the Admin Panel.");
   }
 
   return useLayout ? <AppLayout>{element}</AppLayout> : <>{element}</>;
 };
 
 export default LayoutRoute;
+
