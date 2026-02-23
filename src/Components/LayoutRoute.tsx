@@ -17,34 +17,54 @@ const LayoutRoute: React.FC<LayoutRouteProps> = ({ element, useLayout = true }) 
 
   useEffect(() => {
     const checkStatus = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (session) {
-        setAuthenticated(true);
+      try {
+        // 1. Get the session first
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        // TWEAK: Fetch 'role' instead of 'is_admin'
-        const { data: profile, error } = await supabase
+        if (sessionError || !session) {
+          console.log("No session found");
+          setAuthenticated(false);
+          setLoading(false);
+          return;
+        }
+
+        setAuthenticated(true);
+
+        // 2. Fetch profile with a fallback to prevent 404 crashes
+        const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("is_verified, role") 
+          .select("is_verified, role, is_admin") // selecting all potential admin columns
           .eq("id", session.user.id)
           .single();
 
-        if (profile) {
-          setIsVerified(profile.is_verified);
-          // TWEAK: Check if the role string is exactly 'admin'
-          setIsAdmin(profile.role === "admin");
-          console.log("User Role:", profile.role, "IsAdmin:", profile.role === "admin");
-        } else if (error) {
-          console.error("Profile fetch error:", error.message);
+        if (profileError) {
+          console.warn("Profile fetch issue:", profileError.message);
+          // If 404, we check if it's an RLS issue or missing column
         }
+
+        if (profile) {
+          setIsVerified(profile.is_verified || false);
+          
+          // Check both the 'role' string and the 'is_admin' boolean for safety
+          const checkAdmin = profile.role === "admin" || profile.is_admin === true;
+          setIsAdmin(checkAdmin);
+          
+          console.log("🛡️ Bouncer Stats:", { 
+            Role: profile.role, 
+            isAdminBool: profile.is_admin, 
+            FinalDecision: checkAdmin 
+          });
+        }
+      } catch (err) {
+        console.error("LayoutRoute Error:", err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     checkStatus();
-  }, []);
-
-  if (loading) {
+  }, [location.pathname]); // Re-check on navigation
+if (loading) {
     return <div style={{ padding: '20px', textAlign: 'center' }}>Loading Ulohub...</div>;
   }
 
@@ -73,3 +93,4 @@ const LayoutRoute: React.FC<LayoutRouteProps> = ({ element, useLayout = true }) 
 };
 
 export default LayoutRoute;
+
