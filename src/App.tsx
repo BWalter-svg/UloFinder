@@ -47,11 +47,6 @@ import AdminRoute from "./Components/AdminRoute";
 const App: React.FC = () => {
   return (
     <Routes>
-      {/* --- NEW ADMIN ROUTE (Top Priority) --- */}
-      <Route 
-  path="/admin/verify" 
-  element={<LayoutRoute element={<AdminVerification />} />} 
-/>
       {/* Public pages (no TopBar/Layout) */}
       <Route path="/" element={<LayoutRoute element={<Landing />} useLayout={false} />} />
       <Route path="/login" element={<LayoutRoute element={<Login />} useLayout={false} />} />
