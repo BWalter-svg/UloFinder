@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import supabase from "../api/supabaseClient";
 import AppLayout from "./AppLayout";
@@ -14,15 +14,16 @@ const LayoutRoute: React.FC<LayoutRouteProps> = ({ element, useLayout = true }) 
   const [isVerified, setIsVerified] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const location = useLocation();
+  
+  // Use a ref to track if we've already checked the session to prevent flickering
+  const hasChecked = useRef(false);
 
   useEffect(() => {
     const checkStatus = async () => {
       try {
-        // 1. Get the session first
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        const { data: { session } } = await supabase.auth.getSession();
         
-        if (sessionError || !session) {
-          console.log("No session found");
+        if (!session) {
           setAuthenticated(false);
           setLoading(false);
           return;
@@ -30,62 +31,60 @@ const LayoutRoute: React.FC<LayoutRouteProps> = ({ element, useLayout = true }) 
 
         setAuthenticated(true);
 
-        // 2. Fetch profile with a fallback to prevent 404 crashes
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("is_verified, role, is_admin") // selecting all potential admin columns
+          .select("is_verified, role, is_admin")
           .eq("id", session.user.id)
           .single();
 
-        if (profileError) {
-          console.warn("Profile fetch issue:", profileError.message);
-          // If 404, we check if it's an RLS issue or missing column
-        }
-
         if (profile) {
           setIsVerified(profile.is_verified || false);
-          
-          // Check both the 'role' string and the 'is_admin' boolean for safety
-          const checkAdmin = profile.role === "admin" || profile.is_admin === true;
-          setIsAdmin(checkAdmin);
+          // Standardizing the admin check
+          const adminStatus = profile.role === "admin" || profile.is_admin === true;
+          setIsAdmin(adminStatus);
           
           console.log("🛡️ Bouncer Stats:", { 
             Role: profile.role, 
             isAdminBool: profile.is_admin, 
-            FinalDecision: checkAdmin 
+            FinalDecision: adminStatus 
           });
         }
       } catch (err) {
         console.error("LayoutRoute Error:", err);
       } finally {
         setLoading(false);
+        hasChecked.current = true;
       }
     };
 
     checkStatus();
-  }, [location.pathname]); // Re-check on navigation
-if (loading) {
+  }, [location.pathname]);
+
+  // --- RENDERING LOGIC ---
+
+  if (loading) {
     return <div style={{ padding: '20px', textAlign: 'center' }}>Loading Ulohub...</div>;
   }
 
   const publicPaths = ["/", "/login", "/signup", "/forgot-password", "/reset-password"];
   const isPublicPath = publicPaths.includes(location.pathname);
 
-  // 1. Redirect to Login if trying to access protected route while logged out
+  // 1. Not logged in? Go to login.
   if (!authenticated && !isPublicPath) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // 2. SECURITY: Redirect unverified landlords away from "Add Property"
+  // 2. Admin Protection (More precise check)
+  if (location.pathname.startsWith("/admin")) {
+    if (!isAdmin) {
+      console.warn("Unauthorized Admin Access attempt. Redirecting...");
+      return <Navigate to="/landlord/dashboard" replace />;
+    }
+  }
+
+  // 3. Verification Protection
   if (location.pathname === "/landlord/addproperty" && !isVerified) {
     alert("You must be verified to post properties.");
-    return <Navigate to="/landlord/dashboard" replace />;
-  }
-
-  // 3. ADMIN: Protect the admin approval page
-  // TWEAK: Only redirect if it's an admin path AND they aren't an admin
-  if (location.pathname.startsWith("/admin") && !isAdmin) {
-    console.warn("Unauthorized Admin Access attempt to:", location.pathname);
     return <Navigate to="/landlord/dashboard" replace />;
   }
 
@@ -93,4 +92,3 @@ if (loading) {
 };
 
 export default LayoutRoute;
-
