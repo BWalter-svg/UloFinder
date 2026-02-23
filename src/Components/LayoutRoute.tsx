@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import supabase from "../api/supabaseClient";
 import AppLayout from "./AppLayout";
@@ -11,12 +11,8 @@ interface LayoutRouteProps {
 const LayoutRoute: React.FC<LayoutRouteProps> = ({ element, useLayout = true }) => {
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
-  const [isVerified, setIsVerified] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [companyName, setCompanyName] = useState<string | null>(null);
   const location = useLocation();
-  
-  // Use a ref to track if we've already checked the session to prevent flickering
-  const hasChecked = useRef(false);
 
   useEffect(() => {
     const checkStatus = async () => {
@@ -31,36 +27,26 @@ const LayoutRoute: React.FC<LayoutRouteProps> = ({ element, useLayout = true }) 
 
         setAuthenticated(true);
 
-        const { data: profile, error: profileError } = await supabase
+        // Fetch ONLY the company name now
+        const { data: profile } = await supabase
           .from("profiles")
-          .select("is_verified, role, is_admin")
+          .select("company_name")
           .eq("id", session.user.id)
           .single();
 
         if (profile) {
-          setIsVerified(profile.is_verified || false);
-          // Standardizing the admin check
-          const adminStatus = profile.role === "admin" || profile.is_admin === true;
-          setIsAdmin(adminStatus);
-          
-          console.log("🛡️ Bouncer Stats:", { 
-            Role: profile.role, 
-            isAdminBool: profile.is_admin, 
-            FinalDecision: adminStatus 
-          });
+          setCompanyName(profile.company_name);
+          console.log("🏢 Landlord Identity:", profile.company_name || "No Company Name set");
         }
       } catch (err) {
         console.error("LayoutRoute Error:", err);
       } finally {
         setLoading(false);
-        hasChecked.current = true;
       }
     };
 
     checkStatus();
   }, [location.pathname]);
-
-  // --- RENDERING LOGIC ---
 
   if (loading) {
     return <div style={{ padding: '20px', textAlign: 'center' }}>Loading Ulohub...</div>;
@@ -69,34 +55,18 @@ const LayoutRoute: React.FC<LayoutRouteProps> = ({ element, useLayout = true }) 
   const publicPaths = ["/", "/login", "/signup", "/forgot-password", "/reset-password"];
   const isPublicPath = publicPaths.includes(location.pathname);
 
-  // 1. Not logged in? Go to login.
+  // 1. AUTH GUARD: Not logged in? Go to login.
   if (!authenticated && !isPublicPath) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // 2. Admin Protection (More precise check)
-  if (location.pathname.startsWith("/admin")) {
-    if (!isAdmin) {
-      console.warn("Unauthorized Admin Access attempt. Redirecting...");
-      return <Navigate to="/landlord/dashboard" replace />;
-    }
-  }
-
-  // 3. ADMIN: Protect the admin approval page
-  if (location.pathname.startsWith("/admin")) {
-    // If we are still loading, don't redirect yet!
-    if (loading) return null; 
-
-    if (!isAdmin) {
-      console.warn("Bouncer says NO. isAdmin state is false.");
-      return <Navigate to="/landlord/dashboard" replace />;
-    }
-    
-    console.log("Bouncer says YES. Welcome to the Admin Panel.");
+  // 2. COMPANY GUARD: Can't add property without a Company Name
+  if (location.pathname === "/landlord/addproperty" && !companyName) {
+    alert("Abeg, update your Company Name in your profile before posting a property!");
+    return <Navigate to="/landlord/dashboard" replace />;
   }
 
   return useLayout ? <AppLayout>{element}</AppLayout> : <>{element}</>;
 };
 
 export default LayoutRoute;
-
