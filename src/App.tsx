@@ -38,12 +38,7 @@ import TenantRentHistory from "./Pages/Tenant/RentHistory";
 import TenantMaintenance from "./Pages/Tenant/Maintenance";
 import ExploreHouses from "./Pages/Tenant/ExploreHouses";
 import HouseDetails from "./Pages/Tenant/PropertyDetails";
-import TenantCurrentProperty from "./Pages/Tenant/Current-property";
-
-// --- ADD THESE TWO IMPORTS ---
-import AdminVerification from "./Pages/Admin/AdminVerification";
-import AdminRoute from "./Components/AdminRoute"; 
-
+import TenantCurrentProperty from "./Pages/Tenant/Current-property"
 const App: React.FC = () => {
   return (
     <Routes>
